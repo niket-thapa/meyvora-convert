@@ -1,0 +1,20 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "cro-toolkit/campaign",
+	"version": "1.0.0",
+	"title": "CRO Toolkit / Campaign",
+	"category": "widgets",
+	"description": "Display a CRO Toolkit campaign by ID. Works on Classic pages via shortcode.",
+	"textdomain": "cro-toolkit",
+	"attributes": {
+		"campaignId": {
+			"type": "number",
+			"default": 0
+		}
+	},
+	"supports": {
+		"html": false,
+		"align": true
+	}
+}

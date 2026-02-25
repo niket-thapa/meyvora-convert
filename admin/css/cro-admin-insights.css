@@ -1,0 +1,109 @@
+/**
+ * Insights page: Attribution block and export UI.
+ * Loaded only on admin.php?page=cro-insights.
+ * Depends on cro-admin-design-system.css (cards, tokens, .cro-muted).
+ */
+
+/* Attribution block */
+.cro-insights-page .cro-attribution-block .cro-card__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px 16px;
+}
+
+.cro-attribution-block .cro-card__subtitle {
+  margin: 0;
+  font-size: 13px;
+}
+
+.cro-attribution-totals {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px 24px;
+  margin-bottom: 20px;
+}
+
+.cro-attribution-total {
+  font-size: 13px;
+  color: var(--cro-text-muted, #50575e);
+}
+
+.cro-attribution-total strong {
+  display: block;
+  font-size: 18px;
+  color: var(--cro-text, #1d2327);
+}
+
+.cro-attribution-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 20px 24px;
+  margin-bottom: 16px;
+}
+
+.cro-attribution-col__title {
+  margin: 0 0 8px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: var(--cro-text-muted, #50575e);
+}
+
+.cro-attribution-list {
+  list-style: decimal;
+  margin: 0;
+  padding-left: 1.2em;
+}
+
+.cro-attribution-list li {
+  margin-bottom: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.cro-attribution-list a {
+  text-decoration: none;
+  color: var(--cro-link, #2271b1);
+}
+
+.cro-attribution-count {
+  font-weight: 600;
+  color: var(--cro-text, #1d2327);
+}
+
+.cro-attribution-export {
+  margin: 16px 0 0;
+  padding-top: 16px;
+  border-top: 1px solid var(--cro-border, #c3c4c7);
+}
+
+.cro-attribution-export .cro-export-range-label {
+  margin: 0 0 8px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.cro-attribution-export .cro-export-quick-range {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.cro-attribution-export .cro-export-buttons {
+  margin: 12px 0 0;
+}
+
+.cro-attribution-export .cro-export-buttons .button + .button {
+  margin-left: 8px;
+}
+
+.cro-attribution-export .cro-muted,
+.cro-attribution-export .cro-export-buttons .cro-muted {
+  margin-left: 12px;
+  font-size: 12px;
+}

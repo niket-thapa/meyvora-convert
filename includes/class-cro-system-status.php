@@ -1,0 +1,653 @@
+<?php
+/**
+ * System status checks for CRO Toolkit (WooCommerce, HPOS, DB, cron, REST, cache).
+ *
+ * @package CRO_Toolkit
+ */
+
+// If this file is called directly, abort.
+if ( ! defined( 'WPINC' ) ) {
+	die;
+}
+
+/**
+ * CRO_System_Status class.
+ */
+class CRO_System_Status {
+
+	const REPORT_HEADER = 'CRO Toolkit System Status';
+
+	/**
+	 * Run all checks and return structured results.
+	 *
+	 * @return array[] Each item: 'label' => string, 'status' => 'ok'|'warning'|'error', 'message' => string, 'detail' => string (optional).
+	 */
+	public static function run_checks() {
+		$checks = array();
+
+		$checks[] = self::check_woocommerce();
+		$checks[] = self::check_hpos();
+		$checks[] = self::check_cart_checkout_blocks();
+		$checks[] = self::check_rest_endpoints();
+		$checks[] = self::check_db_tables();
+		$checks[] = self::check_active_boosters();
+		$checks[] = self::check_asset_loading_mode();
+		$checks[] = self::check_cron();
+		$checks[] = self::check_cache_plugins();
+
+		return $checks;
+	}
+
+	/**
+	 * Run "Verify Install Package" checks: tables, blocks build assets, asset loading not site-wide.
+	 * Used by Tools page and WP-CLI.
+	 *
+	 * @return array[] Each item: 'label' => string, 'pass' => bool, 'message' => string.
+	 */
+	public static function run_verify_package() {
+		$results = array();
+
+		// 1) Required tables exist
+		$missing_tables = array();
+		if ( class_exists( 'CRO_Database' ) ) {
+			foreach ( CRO_Database::get_required_table_names() as $name ) {
+				$table = CRO_Database::get_table( $name );
+				if ( ! CRO_Database::table_exists( $table ) ) {
+					$missing_tables[] = $table;
+				}
+			}
+		} else {
+			$missing_tables[] = __( 'CRO_Database not loaded', 'cro-toolkit' );
+		}
+		$results[] = array(
+			'label'   => __( 'Required database tables', 'cro-toolkit' ),
+			'pass'    => empty( $missing_tables ),
+			'message' => empty( $missing_tables )
+				? __( 'All CRO tables present', 'cro-toolkit' )
+				: sprintf( __( 'Missing: %s', 'cro-toolkit' ), implode( ', ', $missing_tables ) ),
+		);
+
+		// 2) Blocks build assets exist
+		$build_dir = defined( 'CRO_PLUGIN_DIR' ) ? CRO_PLUGIN_DIR . 'blocks/cart-checkout-extension/build/' : '';
+		$has_js   = $build_dir && is_readable( $build_dir . 'index.js' );
+		$has_php  = $build_dir && is_readable( $build_dir . 'index.asset.php' );
+		$results[] = array(
+			'label'   => __( 'Blocks build assets', 'cro-toolkit' ),
+			'pass'    => $has_js && $has_php,
+			'message' => $has_js && $has_php
+				? __( 'index.js and index.asset.php present', 'cro-toolkit' )
+				: sprintf(
+					__( 'Missing: %s', 'cro-toolkit' ),
+					implode( ', ', array_filter( array(
+						$has_js ? '' : 'blocks/cart-checkout-extension/build/index.js',
+						$has_php ? '' : 'blocks/cart-checkout-extension/build/index.asset.php',
+					) ) )
+				),
+		);
+
+		// 3) Key features don't enqueue assets site-wide (conditional loading)
+		$forced_global = false;
+		if ( function_exists( 'apply_filters' ) ) {
+			$forced_global = apply_filters( 'cro_should_enqueue_assets', null, 'global' );
+		}
+		$results[] = array(
+			'label'   => __( 'Asset loading not site-wide', 'cro-toolkit' ),
+			'pass'    => true !== $forced_global,
+			'message' => true === $forced_global
+				? __( 'Assets are enqueued site-wide (filter override). Prefer conditional loading.', 'cro-toolkit' )
+				: __( 'Conditional loading (WooCommerce/feature pages only)', 'cro-toolkit' ),
+		);
+
+		return $results;
+	}
+
+	/**
+	 * Run "Verify Installation" checks for System Status page.
+	 * Order: WooCommerce active, Blocks integration registered, Blocks build assets,
+	 * REST offer endpoints, Required DB tables (run create_tables if missing), Email scheduler, wp_mail capability.
+	 *
+	 * @return array[] Each item: 'label' => string, 'pass' => bool, 'message' => string.
+	 */
+	public static function run_verify_installation() {
+		global $wpdb;
+		$results = array();
+
+		// 1) WooCommerce active
+		$wc_active = class_exists( 'WooCommerce' ) && function_exists( 'WC' );
+		$results[] = array(
+			'label'   => __( 'WooCommerce active', 'cro-toolkit' ),
+			'pass'    => $wc_active,
+			'message' => $wc_active
+				? ( defined( 'WC_VERSION' ) ? sprintf( __( 'Active (version %s)', 'cro-toolkit' ), WC_VERSION ) : __( 'Active', 'cro-toolkit' ) )
+				: __( 'WooCommerce is not active.', 'cro-toolkit' ),
+		);
+
+		// 2) Blocks integration registered (CRO IntegrationInterface with WooCommerce Blocks)
+		$integration_class = class_exists( 'CRO_Blocks_Integration_WC' );
+		$integration_hook  = has_action( 'woocommerce_blocks_cart_block_registration' ) || has_action( 'woocommerce_blocks_checkout_block_registration' );
+		$blocks_registered = $integration_class && $integration_hook;
+		$results[] = array(
+			'label'   => __( 'Blocks integration registered', 'cro-toolkit' ),
+			'pass'    => $blocks_registered,
+			'message' => $blocks_registered
+				? __( 'CRO Blocks integration is registered with WooCommerce Blocks.', 'cro-toolkit' )
+				: ( $integration_class
+					? __( 'Integration class exists but registration hooks not found (WooCommerce Blocks may be inactive).', 'cro-toolkit' )
+					: __( 'CRO Blocks integration class not loaded.', 'cro-toolkit' ) ),
+		);
+
+		// 3) Blocks build assets exist
+		$build_dir = defined( 'CRO_PLUGIN_DIR' ) ? CRO_PLUGIN_DIR . 'blocks/cart-checkout-extension/build/' : '';
+		$has_js    = $build_dir && is_readable( $build_dir . 'index.js' );
+		$has_php   = $build_dir && is_readable( $build_dir . 'index.asset.php' );
+		$results[] = array(
+			'label'   => __( 'Blocks build assets exist', 'cro-toolkit' ),
+			'pass'    => $has_js && $has_php,
+			'message' => $has_js && $has_php
+				? __( 'index.js and index.asset.php present.', 'cro-toolkit' )
+				: sprintf(
+					__( 'Missing: %s', 'cro-toolkit' ),
+					implode( ', ', array_filter( array(
+						$has_js ? '' : 'blocks/cart-checkout-extension/build/index.js',
+						$has_php ? '' : 'blocks/cart-checkout-extension/build/index.asset.php',
+					) ) )
+				),
+		);
+
+		// 4) REST offer endpoints reachable (if present)
+		$offer_url = rest_url( 'cro/v1/offer' );
+		$offer_resp = wp_remote_get(
+			$offer_url,
+			array(
+				'timeout'   => 8,
+				'sslverify' => false,
+			)
+		);
+		$offer_code = wp_remote_retrieve_response_code( $offer_resp );
+		$offer_err  = is_wp_error( $offer_resp ) ? $offer_resp->get_error_message() : '';
+		$offer_ok   = ! is_wp_error( $offer_resp ) && in_array( (int) $offer_code, array( 200, 401, 403 ), true );
+		$results[] = array(
+			'label'   => __( 'REST offer endpoints reachable', 'cro-toolkit' ),
+			'pass'    => $offer_ok,
+			'message' => $offer_ok
+				? sprintf( __( 'Reachable (HTTP %d)', 'cro-toolkit' ), $offer_code )
+				: ( $offer_err ? $offer_err : sprintf( __( 'Unexpected response: HTTP %s', 'cro-toolkit' ), $offer_code ) ),
+		);
+
+		// 5) Required DB tables exist; if missing run create_tables() and show result + last_error
+		$missing_tables = array();
+		if ( class_exists( 'CRO_Database' ) ) {
+			foreach ( CRO_Database::get_required_table_names() as $name ) {
+				$table = CRO_Database::get_table( $name );
+				if ( ! CRO_Database::table_exists( $table ) ) {
+					$missing_tables[] = $table;
+				}
+			}
+		}
+		if ( ! empty( $missing_tables ) && class_exists( 'CRO_Database' ) ) {
+			$delta_output = array();
+			$ok = CRO_Database::create_tables( $delta_output );
+			$last_error = $wpdb->last_error;
+			$dbdelta_str = ! empty( $delta_output ) ? ' dbDelta: ' . wp_json_encode( $delta_output ) : '';
+			$results[] = array(
+				'label'   => __( 'Required DB tables exist', 'cro-toolkit' ),
+				'pass'    => $ok,
+				'message' => $ok
+					? __( 'Tables created or updated successfully.', 'cro-toolkit' ) . ( $dbdelta_str ? ' ' . trim( $dbdelta_str ) : '' )
+					: sprintf(
+						/* translators: 1: list of missing tables, 2: db error and optional dbDelta */
+						__( 'Missing: %1$s. create_tables() failed. %2$s%3$s', 'cro-toolkit' ),
+						implode( ', ', $missing_tables ),
+						$last_error ? ( __( 'last_error:', 'cro-toolkit' ) . ' ' . $last_error ) : __( 'Check DB user permissions.', 'cro-toolkit' ),
+						$dbdelta_str
+					),
+			);
+		} else {
+			$results[] = array(
+				'label'   => __( 'Required DB tables exist', 'cro-toolkit' ),
+				'pass'    => true,
+				'message' => __( 'All CRO tables present.', 'cro-toolkit' ),
+			);
+		}
+
+		// 6) Email scheduler available (Action Scheduler else wp-cron fallback)
+		$action_scheduler = function_exists( 'as_has_scheduled_action' );
+		$results[] = array(
+			'label'   => __( 'Email scheduler available', 'cro-toolkit' ),
+			'pass'    => true,
+			'message' => $action_scheduler
+				? __( 'Action Scheduler available (WooCommerce).', 'cro-toolkit' )
+				: __( 'wp-cron fallback (Action Scheduler not detected).', 'cro-toolkit' ),
+		);
+
+		// 7) Test email send capability (wp_mail) basic check
+		$wp_mail_ok = is_callable( 'wp_mail' );
+		$results[] = array(
+			'label'   => __( 'Test email send capability (wp_mail)', 'cro-toolkit' ),
+			'pass'    => $wp_mail_ok,
+			'message' => $wp_mail_ok
+				? __( 'wp_mail() is available.', 'cro-toolkit' )
+				: __( 'wp_mail() is not callable.', 'cro-toolkit' ),
+		);
+
+		// 8) SelectWoo assets (for admin selects)
+		$selectwoo_ok = false;
+		if ( class_exists( 'WooCommerce' ) ) {
+			$selectwoo_css = plugins_url( 'assets/css/select2.css', 'woocommerce/woocommerce.php' );
+			$selectwoo_js  = plugins_url( 'assets/js/selectWoo/selectWoo.full.min.js', 'woocommerce/woocommerce.php' );
+			$selectwoo_ok  = ! empty( $selectwoo_css ) && ! empty( $selectwoo_js );
+		}
+		$results[] = array(
+			'label'   => __( 'SelectWoo assets (admin)', 'cro-toolkit' ),
+			'pass'    => $selectwoo_ok,
+			'message' => $selectwoo_ok
+				? __( 'SelectWoo CSS and JS available.', 'cro-toolkit' )
+				: __( 'WooCommerce or SelectWoo assets not found. Admin selects may fall back to native.', 'cro-toolkit' ),
+		);
+
+		// 9) Campaign builder assets
+		$builder_css = defined( 'CRO_PLUGIN_DIR' ) && is_readable( CRO_PLUGIN_DIR . 'admin/css/cro-campaign-builder.css' );
+		$builder_js  = defined( 'CRO_PLUGIN_DIR' ) && is_readable( CRO_PLUGIN_DIR . 'admin/js/cro-campaign-builder.js' );
+		$results[] = array(
+			'label'   => __( 'Campaign builder assets exist', 'cro-toolkit' ),
+			'pass'    => $builder_css && $builder_js,
+			'message' => ( $builder_css && $builder_js )
+				? __( 'cro-campaign-builder.css and .js present.', 'cro-toolkit' )
+				: sprintf(
+					__( 'Missing: %s', 'cro-toolkit' ),
+					implode( ', ', array_filter( array(
+						$builder_css ? '' : 'admin/css/cro-campaign-builder.css',
+						$builder_js ? '' : 'admin/js/cro-campaign-builder.js',
+					) ) )
+				),
+		);
+
+		// 10) UI & Builder Health: no legacy CRO admin CSS (design system is source of truth)
+		$legacy_cro_css = array();
+		$cro_css_handles = array();
+		if ( isset( $GLOBALS['wp_styles'] ) && $GLOBALS['wp_styles'] instanceof \WP_Styles ) {
+			$done = array_merge( $GLOBALS['wp_styles']->done, $GLOBALS['wp_styles']->queue );
+			$legacy_handles = array( 'cro-admin', 'cro-admin-ui', 'cro-admin-modern', 'cro-admin-brand-identity' );
+			foreach ( $legacy_handles as $handle ) {
+				if ( in_array( $handle, $done, true ) ) {
+					$legacy_cro_css[] = $handle;
+				}
+			}
+			foreach ( $done as $handle ) {
+				if ( strpos( $handle, 'cro' ) !== false && isset( $GLOBALS['wp_styles']->registered[ $handle ] ) ) {
+					$cro_css_handles[] = $handle;
+				}
+			}
+		}
+		$results[] = array(
+			'label'   => __( 'UI & Builder: no legacy CRO admin CSS', 'cro-toolkit' ),
+			'pass'    => empty( $legacy_cro_css ),
+			'message' => empty( $legacy_cro_css )
+				? ( empty( $cro_css_handles ) ? __( 'Design system and page-specific only.', 'cro-toolkit' ) : sprintf( __( 'CRO CSS loaded: %s', 'cro-toolkit' ), implode( ', ', $cro_css_handles ) ) )
+				: sprintf(
+					__( 'Legacy CSS enqueued (remove from code): %s', 'cro-toolkit' ),
+					implode( ', ', $legacy_cro_css )
+				),
+		);
+
+		// 11) Builder script registered (in register_campaign_builder_assets); enqueued on page=cro-campaign-edit or cro-campaign-builder
+		$builder_registered = wp_script_is( 'cro-campaign-builder', 'registered' );
+		$results[] = array(
+			'label'   => __( 'Campaign builder script registered', 'cro-toolkit' ),
+			'pass'    => $builder_registered,
+			'message' => $builder_registered
+				? __( 'Builder JS registered; enqueued on campaign edit/builder pages.', 'cro-toolkit' )
+				: __( 'cro-campaign-builder script not registered. Check register_campaign_builder_assets.', 'cro-toolkit' ),
+		);
+
+		return $results;
+	}
+
+	/**
+	 * WooCommerce active.
+	 *
+	 * @return array
+	 */
+	private static function check_woocommerce() {
+		$active = class_exists( 'WooCommerce' ) && function_exists( 'WC' );
+		$version = $active && defined( 'WC_VERSION' ) ? WC_VERSION : '';
+		return array(
+			'label'   => __( 'WooCommerce active', 'cro-toolkit' ),
+			'status'  => $active ? 'ok' : 'warning',
+			'message'  => $active
+				? ( $version ? sprintf( __( 'Active (version %s)', 'cro-toolkit' ), $version ) : __( 'Active', 'cro-toolkit' ) )
+				: __( 'Not active', 'cro-toolkit' ),
+			'detail'  => $active ? '' : __( 'Some features (shipping bar, sticky cart, cart/checkout optimizer) require WooCommerce.', 'cro-toolkit' ),
+		);
+	}
+
+	/**
+	 * HPOS (High-Performance Order Storage) compatibility.
+	 *
+	 * @return array
+	 */
+	private static function check_hpos() {
+		if ( ! class_exists( 'WooCommerce' ) ) {
+			return array(
+				'label'   => __( 'WooCommerce HPOS', 'cro-toolkit' ),
+				'status'  => 'warning',
+				'message'  => __( 'N/A — WooCommerce not active', 'cro-toolkit' ),
+				'detail'  => '',
+			);
+		}
+		$hpos_enabled = false;
+		if ( class_exists( 'Automattic\WooCommerce\Utilities\OrderUtil' ) && method_exists( 'Automattic\WooCommerce\Utilities\OrderUtil', 'custom_orders_table_usage_is_enabled' ) ) {
+			$hpos_enabled = \Automattic\WooCommerce\Utilities\OrderUtil::custom_orders_table_usage_is_enabled();
+		}
+		return array(
+			'label'   => __( 'HPOS enabled/disabled', 'cro-toolkit' ),
+			'status'  => 'ok',
+			'message'  => $hpos_enabled ? __( 'HPOS enabled', 'cro-toolkit' ) : __( 'HPOS disabled (classic order tables)', 'cro-toolkit' ),
+			'detail'  => __( 'CRO Toolkit is compatible with both HPOS and classic storage.', 'cro-toolkit' ),
+		);
+	}
+
+	/**
+	 * Cart/Checkout block detection (WooCommerce block-based cart/checkout).
+	 *
+	 * @return array
+	 */
+	private static function check_cart_checkout_blocks() {
+		if ( ! class_exists( 'WooCommerce' ) || ! function_exists( 'wc_get_page_id' ) ) {
+			return array(
+				'label'   => __( 'Cart/Checkout block detection', 'cro-toolkit' ),
+				'status'  => 'warning',
+				'message'  => __( 'N/A — WooCommerce not active', 'cro-toolkit' ),
+				'detail'  => '',
+			);
+		}
+		$cart_block = false;
+		$checkout_block = false;
+		if ( class_exists( 'WC_Blocks_Utils' ) && method_exists( 'WC_Blocks_Utils', 'has_block_in_page' ) ) {
+			$cart_page_id = wc_get_page_id( 'cart' );
+			$checkout_page_id = wc_get_page_id( 'checkout' );
+			if ( $cart_page_id > 0 ) {
+				$cart_block = WC_Blocks_Utils::has_block_in_page( $cart_page_id, 'woocommerce/cart' );
+			}
+			if ( $checkout_page_id > 0 ) {
+				$checkout_block = WC_Blocks_Utils::has_block_in_page( $checkout_page_id, 'woocommerce/checkout' );
+			}
+		}
+		$parts = array();
+		if ( $cart_block ) {
+			$parts[] = __( 'Cart: block', 'cro-toolkit' );
+		} else {
+			$parts[] = __( 'Cart: shortcode', 'cro-toolkit' );
+		}
+		if ( $checkout_block ) {
+			$parts[] = __( 'Checkout: block', 'cro-toolkit' );
+		} else {
+			$parts[] = __( 'Checkout: shortcode', 'cro-toolkit' );
+		}
+		return array(
+			'label'   => __( 'Cart/Checkout block detection', 'cro-toolkit' ),
+			'status'  => 'ok',
+			'message'  => implode( ' · ', $parts ),
+			'detail'  => '',
+		);
+	}
+
+	/**
+	 * CRO custom tables status (all plugin tables).
+	 *
+	 * @return array
+	 */
+	private static function check_db_tables() {
+		global $wpdb;
+		// Table names must match CRO_Database::create_tables() (prefix-safe).
+		$tables = array(
+			'cro_campaigns'      => $wpdb->prefix . 'cro_campaigns',
+			'cro_events'         => $wpdb->prefix . 'cro_events',
+			'cro_emails'          => $wpdb->prefix . 'cro_emails',
+			'cro_settings'       => $wpdb->prefix . 'cro_settings',
+			'cro_ab_tests'        => $wpdb->prefix . 'cro_ab_tests',
+			'cro_ab_variations'   => $wpdb->prefix . 'cro_ab_variations',
+			'cro_ab_assignments'  => $wpdb->prefix . 'cro_ab_assignments',
+			'cro_daily_stats'     => $wpdb->prefix . 'cro_daily_stats',
+			'cro_offers'          => $wpdb->prefix . 'cro_offers',
+			'cro_offer_logs'      => $wpdb->prefix . 'cro_offer_logs',
+		);
+		$present = array();
+		$missing = array();
+		foreach ( $tables as $name => $full ) {
+			$exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $full ) ) === $full;
+			if ( $exists ) {
+				$present[] = $name;
+			} else {
+				$missing[] = $full;
+			}
+		}
+		if ( empty( $missing ) ) {
+			return array(
+				'label'   => __( 'Custom tables status', 'cro-toolkit' ),
+				'status'  => 'ok',
+				'message'  => __( 'All CRO tables present', 'cro-toolkit' ),
+				'detail'  => implode( ', ', $present ),
+			);
+		}
+		return array(
+			'label'   => __( 'Custom tables status', 'cro-toolkit' ),
+			'status'  => count( $missing ) === count( $tables ) ? 'error' : 'warning',
+			'message'  => sprintf( __( 'Missing: %s', 'cro-toolkit' ), implode( ', ', $missing ) ),
+			'detail'  => __( 'Deactivate and reactivate the plugin to create tables, or run the activation routine.', 'cro-toolkit' ),
+		);
+	}
+
+	/**
+	 * Active boosters list (enabled features: sticky cart, shipping bar, trust badges, stock urgency, etc.).
+	 *
+	 * @return array
+	 */
+	private static function check_active_boosters() {
+		if ( ! function_exists( 'cro_settings' ) ) {
+			return array(
+				'label'   => __( 'Active boosters list', 'cro-toolkit' ),
+				'status'  => 'warning',
+				'message'  => __( 'Settings unavailable', 'cro-toolkit' ),
+				'detail'  => '',
+			);
+		}
+		$settings = cro_settings();
+		$boosters = array(
+			'sticky_cart'     => __( 'Sticky add-to-cart', 'cro-toolkit' ),
+			'shipping_bar'    => __( 'Free shipping bar', 'cro-toolkit' ),
+			'trust_badges'    => __( 'Trust badges', 'cro-toolkit' ),
+			'stock_urgency'   => __( 'Stock urgency', 'cro-toolkit' ),
+			'campaigns'       => __( 'Conversion campaigns', 'cro-toolkit' ),
+			'cart_optimizer'  => __( 'Cart optimizer', 'cro-toolkit' ),
+			'checkout_optimizer' => __( 'Checkout optimizer', 'cro-toolkit' ),
+		);
+		$active = array();
+		foreach ( $boosters as $key => $label ) {
+			if ( $settings->is_feature_enabled( $key ) ) {
+				$active[] = $label;
+			}
+		}
+		$message = empty( $active ) ? __( 'None enabled', 'cro-toolkit' ) : implode( ', ', $active );
+		return array(
+			'label'   => __( 'Active boosters list', 'cro-toolkit' ),
+			'status'  => 'ok',
+			'message'  => $message,
+			'detail'  => '',
+		);
+	}
+
+	/**
+	 * Plugin asset loading mode (conditional vs global).
+	 *
+	 * @return array
+	 */
+	private static function check_asset_loading_mode() {
+		$forced_global = false;
+		if ( function_exists( 'apply_filters' ) ) {
+			$forced_global = apply_filters( 'cro_should_enqueue_assets', null, 'global' );
+		}
+		if ( true === $forced_global ) {
+			$mode = __( 'Global (filter override)', 'cro-toolkit' );
+		} elseif ( false === $forced_global ) {
+			$mode = __( 'Disabled (filter override)', 'cro-toolkit' );
+		} else {
+			$mode = __( 'Conditional — WooCommerce and feature pages only', 'cro-toolkit' );
+		}
+		return array(
+			'label'   => __( 'Plugin asset loading mode', 'cro-toolkit' ),
+			'status'  => 'ok',
+			'message'  => $mode,
+			'detail'  => __( 'Assets load only where CRO features are active unless overridden by cro_should_enqueue_assets.', 'cro-toolkit' ),
+		);
+	}
+
+	/**
+	 * Cron status (if plugin uses cron).
+	 *
+	 * @return array
+	 */
+	private static function check_cron() {
+		$crons = _get_cron_array();
+		$cro_hooks = array( 'cro_process_background_queue', 'cro_cleanup_old_events', 'cro_aggregate_daily_stats' );
+		$found = array();
+		foreach ( $cro_hooks as $hook ) {
+			foreach ( $crons as $ts => $jobs ) {
+				if ( isset( $jobs[ $hook ] ) ) {
+					$found[ $hook ] = $ts;
+					break;
+				}
+			}
+		}
+		if ( empty( $found ) ) {
+			return array(
+				'label'   => __( 'Cron (scheduled tasks)', 'cro-toolkit' ),
+				'status'  => 'warning',
+				'message'  => __( 'No CRO cron events scheduled', 'cro-toolkit' ),
+				'detail'  => __( 'Background processing and daily cleanup may not run. Ensure WP-Cron is not disabled, or use a system cron.', 'cro-toolkit' ),
+			);
+		}
+		$next = min( array_values( $found ) );
+		$next_readable = $next ? date_i18n( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), $next ) : '—';
+		return array(
+			'label'   => __( 'Cron (scheduled tasks)', 'cro-toolkit' ),
+			'status'  => 'ok',
+			'message'  => sprintf( __( 'Scheduled (next: %s)', 'cro-toolkit' ), $next_readable ),
+			'detail'  => implode( ', ', array_keys( $found ) ),
+		);
+	}
+
+	/**
+	 * REST endpoints reachable.
+	 *
+	 * @return array
+	 */
+	private static function check_rest_endpoints() {
+		$url = rest_url( 'cro-toolkit/v1/campaigns' );
+		$resp = wp_remote_get( $url, array(
+			'timeout' => 10,
+			'sslverify' => false,
+			'headers' => array(),
+		) );
+		$code = wp_remote_retrieve_response_code( $resp );
+		$body = wp_remote_retrieve_body( $resp );
+		if ( is_wp_error( $resp ) ) {
+			return array(
+				'label'   => __( 'REST API reachable', 'cro-toolkit' ),
+				'status'  => 'error',
+				'message'  => $resp->get_error_message(),
+				'detail'  => $url,
+			);
+		}
+		// 200 = success, 401 = auth required (endpoint exists)
+		if ( in_array( (int) $code, array( 200, 401 ), true ) ) {
+			return array(
+				'label'   => __( 'REST API reachable', 'cro-toolkit' ),
+				'status'  => 'ok',
+				'message'  => sprintf( __( 'Reachable (HTTP %d)', 'cro-toolkit' ), $code ),
+				'detail'  => $url,
+			);
+		}
+		return array(
+			'label'   => __( 'REST API reachable', 'cro-toolkit' ),
+			'status'  => ( $code >= 500 || $code === 0 ) ? 'error' : 'warning',
+			'message'  => sprintf( __( 'Unexpected response: HTTP %d', 'cro-toolkit' ), $code ),
+			'detail'  => $url,
+		);
+	}
+
+	/**
+	 * Cache plugin detection.
+	 *
+	 * @return array
+	 */
+	private static function check_cache_plugins() {
+		$detected = array();
+		$checks = array(
+			'WP Super Cache'     => defined( 'WPSUPERCACHE' ) || function_exists( 'wp_super_cache_text_domain' ),
+			'W3 Total Cache'     => defined( 'W3TC' ) || ( defined( 'W3TC_DIR' ) && W3TC_DIR ),
+			'WP Rocket'          => defined( 'WP_ROCKET_VERSION' ),
+			'LiteSpeed Cache'   => defined( 'LSCWP_VERS' ) || class_exists( 'LiteSpeed\Purge' ),
+			'WP Fastest Cache'   => defined( 'WPFC_WP_PLUGIN_DIR' ) || function_exists( 'wpfc_clear_all_cache' ),
+			'Cache Enabler'      => defined( 'CACHE_ENABLER_VERSION' ),
+			'SG Optimizer'       => class_exists( 'SG_CachePress_Environment' ) || defined( 'SG_CACHEPRESS_VERSION' ),
+			'Autoptimize'       => defined( 'AUTOPTIMIZE_PLUGIN_VERSION' ),
+		);
+		foreach ( $checks as $name => $active ) {
+			if ( $active ) {
+				$detected[] = $name;
+			}
+		}
+		if ( empty( $detected ) ) {
+			return array(
+				'label'   => __( 'Cache plugins', 'cro-toolkit' ),
+				'status'  => 'ok',
+				'message'  => __( 'None detected', 'cro-toolkit' ),
+				'detail'  => __( 'No known page/cache plugins detected. If you use object or fragment caching, exclude CRO cookies/endpoints if needed.', 'cro-toolkit' ),
+			);
+		}
+		return array(
+			'label'   => __( 'Cache plugins', 'cro-toolkit' ),
+			'status'  => 'warning',
+			'message'  => implode( ', ', $detected ),
+			'detail'  => __( 'Ensure REST and campaign endpoints are not heavily cached; exclude CRO_Visitor_State cookie from cache key if applicable.', 'cro-toolkit' ),
+		);
+	}
+
+	/**
+	 * Build a plain-text report for support (copyable).
+	 *
+	 * @param array[] $checks Result of run_checks().
+	 * @return string
+	 */
+	public static function build_report( $checks = null ) {
+		if ( $checks === null ) {
+			$checks = self::run_checks();
+		}
+		$lines = array();
+		$lines[] = '=== ' . self::REPORT_HEADER . ' ===';
+		$lines[] = '';
+		$lines[] = 'Generated: ' . gmdate( 'Y-m-d H:i:s' ) . ' UTC';
+		$lines[] = 'Site: ' . home_url();
+		$lines[] = 'WP: ' . get_bloginfo( 'version' );
+		$lines[] = 'PHP: ' . PHP_VERSION;
+		$lines[] = 'CRO Toolkit: ' . ( defined( 'CRO_VERSION' ) ? CRO_VERSION : 'n/a' );
+		if ( class_exists( 'WooCommerce' ) && defined( 'WC_VERSION' ) ) {
+			$lines[] = 'WooCommerce: ' . WC_VERSION;
+		}
+		$lines[] = '';
+		$lines[] = '--- Checks ---';
+		foreach ( $checks as $c ) {
+			$status = isset( $c['status'] ) ? strtoupper( $c['status'] ) : '?';
+			$label  = isset( $c['label'] ) ? $c['label'] : '';
+			$msg    = isset( $c['message'] ) ? $c['message'] : '';
+			$lines[] = '[' . $status . '] ' . $label . ': ' . $msg;
+			if ( ! empty( $c['detail'] ) ) {
+				$lines[] = '    ' . $c['detail'];
+			}
+		}
+		$lines[] = '';
+		$lines[] = '=== End report ===';
+		return implode( "\n", $lines );
+	}
+}

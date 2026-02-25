@@ -1,0 +1,871 @@
+/**
+ * CRO Admin Design System – single source of truth for all CRO admin pages.
+ * Tokens (8px grid), layout, components, forms, tables, tabs, buttons, badges, empty states, toast.
+ * No duplicate rules in cro-admin-modern / cro-admin-ui / page CSS.
+ *
+ * @package CRO_Toolkit
+ */
+
+/* ==========================================================================
+   Design tokens (8px grid, border, radius, shadow, font sizes)
+   ========================================================================== */
+:root {
+  /* Spacing (8px grid) */
+  --cro-space-xs: 4px;
+  --cro-space-sm: 8px;
+  --cro-space-md: 16px;
+  --cro-space-lg: 24px;
+  --cro-space-xl: 32px;
+  --cro-space-2xl: 40px;
+
+  /* Border & radius */
+  --cro-border: 1px solid #c3c4c7;
+  --cro-border-light: 1px solid #dcdcde;
+  --cro-radius-sm: 4px;
+  --cro-radius-md: 6px;
+  --cro-radius-lg: 8px;
+
+  /* Shadows */
+  --cro-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --cro-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  --cro-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+
+  /* Font sizes */
+  --cro-text-xs: 11px;
+  --cro-text-sm: 12px;
+  --cro-text-base: 13px;
+  --cro-text-md: 14px;
+  --cro-text-lg: 16px;
+  --cro-text-xl: 18px;
+
+  /* Colors (WP admin aligned) */
+  --cro-bg: #fff;
+  --cro-bg-subtle: #f6f7f7;
+  --cro-bg-tabs: #f0f0f1;
+  --cro-text: #1d2327;
+  --cro-text-muted: #646970;
+  --cro-primary: #2271b1;
+  --cro-primary-hover: #135e96;
+  --cro-focus-ring: 0 0 0 1px #fff, 0 0 0 3px var(--cro-primary);
+  --cro-success: #00a32a;
+  --cro-error: #d63638;
+
+  /* Form controls */
+  --cro-input-height: 42px;
+  --cro-input-padding-x: 12px;
+  --cro-input-radius: var(--cro-radius-sm);
+
+  /* Layout container: header, nav, content share same width and padding */
+  --cro-container-max: 1600px;
+  --cro-container-padding-x: 24px;
+}
+
+/* ==========================================================================
+   Layout container – .cro-admin-container (header, nav, content inner)
+   ========================================================================== */
+.cro-admin-container,
+.cro-admin-layout__header,
+.cro-admin-layout__nav {
+  max-width: var(--cro-container-max);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Prevent horizontal overflow; use 100% not 100vw. No negative margins/translate on layout. */
+.cro-admin-layout {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow-x: clip;
+  padding-left: var(--cro-container-padding-x);
+  padding-right: var(--cro-container-padding-x);
+}
+
+.wrap.cro-admin-layout > .cro-admin-layout__header {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+/* ----- Header ----- */
+.cro-admin-layout__header {
+  width: 100%;
+  background: var(--cro-bg);
+  border-bottom: var(--cro-border-light);
+  box-shadow: var(--cro-shadow-sm);
+  box-sizing: border-box;
+  margin-block-end: 40px;
+}
+
+.cro-admin-layout__header-inner {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-rows: auto;
+  align-items: center;
+  gap: var(--cro-space-lg) var(--cro-space-2xl);
+  padding-top: var(--cro-space-lg);
+  padding-bottom: var(--cro-space-lg);
+  padding-left: var(--cro-container-padding-x);
+  padding-right: var(--cro-container-padding-x);
+  min-height: 0;
+}
+
+.cro-admin-layout__header-inner > .cro-ui-header__right {
+  min-width: 0;
+}
+
+.cro-admin-layout__header-inner .cro-ui-header__text,
+.cro-ui-header__text {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--cro-space-xs);
+}
+
+.cro-admin-layout__header-inner .cro-ui-header__title,
+.cro-ui-header__title {
+  margin: 0;
+  font-size: 23px;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--cro-text);
+}
+
+.cro-admin-layout__header-inner .cro-ui-header__subtitle,
+.cro-ui-header__subtitle {
+  margin: 0;
+  font-size: var(--cro-text-base);
+  color: var(--cro-text-muted);
+  line-height: 1.5;
+  max-width: 560px;
+}
+
+.cro-admin-layout__header-inner .cro-ui-header__meta,
+.cro-ui-header__meta {
+  margin-top: var(--cro-space-xs);
+  font-size: var(--cro-text-sm);
+  color: var(--cro-text-muted);
+}
+
+.cro-admin-layout__header-inner .cro-ui-header__actions,
+.cro-ui-header__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--cro-space-sm);
+  flex-shrink: 0;
+}
+
+/* Right column: optional pills row + primary action */
+.cro-ui-header__right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--cro-space-sm);
+  flex-shrink: 0;
+}
+
+.cro-ui-header__pills {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--cro-space-sm);
+}
+
+/* Pill component: subtle background, border, 12px font, 6–8px padding */
+.cro-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 10px;
+  font-size: 12px;
+  line-height: 1.3;
+  color: var(--cro-text-muted);
+  background: var(--cro-bg-subtle);
+  border: var(--cro-border-light);
+  border-radius: var(--cro-radius-lg);
+  white-space: nowrap;
+  box-sizing: border-box;
+}
+
+.cro-pill--muted {
+  background: var(--cro-bg-tabs);
+  color: var(--cro-text-muted);
+}
+
+.cro-pill--success {
+  background: #edfaef;
+  border-color: #00a32a;
+  color: #00a32a;
+}
+
+.cro-admin-layout__header-inner .cro-ui-header__actions .button-primary,
+.cro-ui-header__actions .button-primary {
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.05);
+}
+
+@media (max-width: 782px) {
+  .cro-admin-layout__header-inner {
+    grid-template-columns: 1fr;
+  }
+  .cro-ui-header__right {
+    align-items: flex-start;
+    width: 100%;
+  }
+  .cro-ui-header__pills {
+    justify-content: flex-start;
+  }
+  .cro-admin-layout__header-inner .cro-ui-header__actions,
+  .cro-ui-header__actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+}
+
+/* ----- Nav (tabs): sticky under WP admin bar ----- */
+.cro-admin-layout__nav {
+  width: 100%;
+  background: var(--cro-bg-tabs);
+  border: var(--cro-border);
+  border-radius: var(--cro-radius-md) var(--cro-radius-md) 0 0;
+  box-shadow: var(--cro-shadow-sm);
+  box-sizing: border-box;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+/* Offset when WP admin bar is present so tabs sit under it */
+body.admin-bar .cro-admin-layout__nav {
+  top: 32px;
+}
+@media screen and (max-width: 782px) {
+  body.admin-bar .cro-admin-layout__nav {
+    top: 46px;
+  }
+}
+
+/* Subtle shadow when nav is stuck (class added by JS) */
+.cro-admin-layout__nav.is-stuck {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* Sentinel: 1px tall element above nav for IntersectionObserver */
+.cro-admin-layout__nav-sentinel {
+  display: block;
+  height: 0;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  pointer-events: none;
+  visibility: hidden;
+}
+
+.cro-admin-layout__nav-inner {
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  padding-left: var(--cro-container-padding-x);
+  padding-right: var(--cro-container-padding-x);
+}
+
+.cro-admin-layout__nav .cro-ui-nav__list,
+.cro-ui-nav__list {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: stretch;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  gap: 0;
+  min-width: min-content;
+}
+
+.cro-ui-nav__item {
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+
+.cro-admin-layout__nav .cro-ui-nav__link,
+.cro-ui-nav__link {
+  display: block;
+  padding: 10px 16px;
+  color: var(--cro-text);
+  text-decoration: none;
+  font-size: var(--cro-text-base);
+  line-height: 1.4;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -1px;
+  white-space: nowrap;
+  transition:
+    background 0.1s ease,
+    border-color 0.1s ease,
+    color 0.1s ease;
+}
+
+.cro-admin-layout__nav .cro-ui-nav__link:hover,
+.cro-ui-nav__link:hover {
+  background: rgba(255, 255, 255, 0.6);
+  color: var(--cro-text);
+}
+
+.cro-admin-layout__nav .cro-ui-nav__link--active,
+.cro-ui-nav__link--active {
+  background: #f0f6fc;
+  color: var(--cro-primary);
+  font-weight: 500;
+  border-bottom-color: var(--cro-primary);
+  position: relative;
+  z-index: 1;
+  box-shadow: 0 -1px 0 #fff inset;
+}
+
+/* ----- Content ----- */
+.cro-admin-layout__content-wrap {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow-x: clip;
+}
+
+.cro-admin-layout__content {
+  width: 100%;
+  background: var(--cro-bg);
+  border: var(--cro-border);
+  border-top: none;
+  border-radius: 0 0 var(--cro-radius-md) var(--cro-radius-md);
+  box-shadow: var(--cro-shadow-sm);
+  padding: var(--cro-space-xl);
+  padding-left: var(--cro-container-padding-x);
+  padding-right: var(--cro-container-padding-x);
+  min-height: 200px;
+  box-sizing: border-box;
+}
+
+.cro-system-status-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+/* ==========================================================================
+   Grid: .cro-grid (12-col), .cro-col-6, .cro-col-12
+   ========================================================================== */
+.cro-grid {
+  display: grid;
+  gap: var(--cro-space-md);
+}
+
+.cro-grid--gap-lg {
+  gap: var(--cro-space-lg);
+}
+
+.cro-grid--12 {
+  grid-template-columns: repeat(12, 1fr);
+}
+
+.cro-grid .cro-col-6 {
+  grid-column: span 6;
+}
+
+.cro-grid .cro-col-12 {
+  grid-column: span 12;
+}
+
+@media (max-width: 782px) {
+  .cro-grid .cro-col-6 {
+    grid-column: span 12;
+  }
+}
+
+/* ==========================================================================
+   Cards: .cro-card, .cro-card__header, .cro-card__body
+   ========================================================================== */
+.cro-card,
+.cro-ui-card {
+  background: var(--cro-bg);
+  border: var(--cro-border-light);
+  border-radius: var(--cro-radius-md);
+  box-shadow: var(--cro-shadow);
+  margin-bottom: var(--cro-space-lg);
+}
+
+.cro-card:last-child,
+.cro-ui-card:last-child {
+  margin-bottom: 0;
+}
+
+.cro-card__header,
+.cro-ui-card__header {
+  padding: var(--cro-space-md) var(--cro-space-lg);
+  border-bottom: var(--cro-border-light);
+  font-size: var(--cro-text-md);
+  font-weight: 600;
+  color: var(--cro-text);
+}
+
+.cro-card__header h2,
+.cro-card__title {
+  margin: 0;
+  font-size: inherit;
+  font-weight: inherit;
+}
+
+.cro-card__body,
+.cro-ui-card__body {
+  padding: var(--cro-space-lg);
+}
+
+.cro-card__body .cro-field + .cro-field {
+  margin-top: var(--cro-space-lg);
+}
+
+/* ==========================================================================
+   Fields: .cro-field, .cro-field__label, .cro-field__control, .cro-help
+   ========================================================================== */
+.cro-field {
+  display: block;
+  margin-bottom: var(--cro-space-lg);
+}
+
+.cro-field:last-child {
+  margin-bottom: 0;
+}
+
+.cro-admin-layout__content .cro-field__label,
+.cro-field__label {
+  display: block;
+  margin-bottom: var(--cro-space-sm);
+  font-size: var(--cro-text-base);
+  font-weight: 600;
+  color: var(--cro-text);
+}
+
+.cro-field__control {
+  display: block;
+}
+
+.cro-field__control input[type="text"],
+.cro-field__control input[type="number"],
+.cro-field__control input[type="email"],
+.cro-field__control input[type="search"],
+.cro-field__control input[type="date"],
+.cro-field__control input[type="url"],
+.cro-field__control select,
+.cro-field__control textarea {
+  width: 100%;
+  max-width: 400px;
+}
+
+/* ==========================================================================
+   Form controls: 42px height, padding, focus (exclude Select2 search field)
+   ========================================================================== */
+.cro-admin-layout__content input[type="text"],
+.cro-admin-layout__content input[type="number"],
+.cro-admin-layout__content input[type="email"],
+.cro-admin-layout__content input[type="search"],
+.cro-admin-layout__content input[type="date"],
+.cro-admin-layout__content input[type="url"],
+.cro-admin-layout__content select {
+  height: var(--cro-input-height);
+  min-height: var(--cro-input-height);
+  padding: 0 var(--cro-input-padding-x);
+  border: var(--cro-border);
+  border-radius: var(--cro-input-radius);
+  font-size: var(--cro-text-base);
+  line-height: 1;
+  box-sizing: border-box;
+}
+
+.cro-admin-layout__content input[type="text"]:not(.select2-search__field):focus,
+.cro-admin-layout__content
+  input[type="number"]:not(.select2-search__field):focus,
+.cro-admin-layout__content
+  input[type="email"]:not(.select2-search__field):focus,
+.cro-admin-layout__content
+  input[type="search"]:not(.select2-search__field):focus,
+.cro-admin-layout__content input[type="date"]:not(.select2-search__field):focus,
+.cro-admin-layout__content input[type="url"]:not(.select2-search__field):focus,
+.cro-admin-layout__content select:focus,
+.cro-admin-layout__content textarea:focus {
+  border-color: var(--cro-primary);
+  box-shadow: var(--cro-focus-ring);
+  outline: none;
+}
+
+.cro-admin-layout__content textarea {
+  min-height: 80px;
+  padding: var(--cro-space-sm) var(--cro-input-padding-x);
+  border: var(--cro-border);
+  border-radius: var(--cro-input-radius);
+  font-size: var(--cro-text-base);
+  line-height: 1.5;
+  box-sizing: border-box;
+}
+
+/* ==========================================================================
+   Tables: sticky header, row hover
+   ========================================================================== */
+.cro-modern-table-wrap,
+.cro-table-wrap {
+  overflow-x: auto;
+  border: var(--cro-border-light);
+  border-radius: var(--cro-radius-md);
+  box-shadow: var(--cro-shadow-sm);
+}
+
+.cro-modern-table,
+.cro-admin-layout__content .widefat,
+.cro-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--cro-text-base);
+  border: none;
+}
+
+.cro-modern-table th,
+.cro-modern-table td,
+.cro-admin-layout__content .widefat th,
+.cro-admin-layout__content .widefat td,
+.cro-table th,
+.cro-table td {
+  padding: var(--cro-space-sm) var(--cro-space-md);
+  border-bottom: var(--cro-border-light);
+  text-align: left;
+}
+
+.cro-modern-table thead th,
+.cro-admin-layout__content .widefat thead th,
+.cro-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--cro-bg-subtle);
+  font-weight: 600;
+  color: var(--cro-text);
+  white-space: nowrap;
+  box-shadow: 0 1px 0 var(--cro-border-light);
+}
+
+.cro-modern-table tbody tr:hover,
+.cro-admin-layout__content .widefat tbody tr:hover,
+.cro-table tbody tr:hover {
+  background: var(--cro-bg-subtle);
+}
+
+/* Table actions: links and buttons in table cells */
+.cro-table-actions,
+.cro-table .cro-table-actions {
+  white-space: nowrap;
+}
+
+.cro-table-action-link,
+.cro-table-actions a:not(.button) {
+  display: inline-block;
+  margin-right: var(--cro-space-md);
+  padding: 0;
+  font-size: var(--cro-text-sm);
+  color: var(--cro-primary);
+  text-decoration: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.cro-table-action-link:hover,
+.cro-table-actions a:not(.button):hover {
+  color: var(--cro-primary-hover);
+  text-decoration: underline;
+}
+
+.cro-table-actions .button,
+.cro-table-actions .button-link {
+  margin-right: var(--cro-space-sm);
+  margin-bottom: 0;
+  padding: 2px var(--cro-space-sm);
+  font-size: var(--cro-text-sm);
+  line-height: 1.5;
+  vertical-align: middle;
+}
+
+.cro-table-actions .button-link {
+  color: var(--cro-primary);
+  text-decoration: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.cro-table-actions .button-link:hover {
+  text-decoration: underline;
+}
+
+.cro-table-actions .button-link.delete-link,
+.cro-table-action-link.delete-link {
+  color: var(--cro-error);
+}
+
+.cro-table-actions .button-link.delete-link:hover,
+.cro-table-action-link.delete-link:hover {
+  color: var(--cro-error);
+  text-decoration: underline;
+}
+
+/* ==========================================================================
+   Buttons
+   ========================================================================== */
+.cro-admin-layout__content .button,
+.cro-admin-layout__content .button-secondary {
+  height: var(--cro-input-height);
+  line-height: 1;
+  padding: 0 var(--cro-space-md);
+  border-radius: var(--cro-input-radius);
+  font-size: var(--cro-text-base);
+  display: inline-flex;
+  align-items: center;
+}
+
+.cro-admin-layout__content .button-primary,
+.cro-ui-btn-primary {
+  background: var(--cro-primary);
+  border-color: var(--cro-primary);
+  color: #fff;
+}
+
+.cro-admin-layout__content .button-primary:hover,
+.cro-ui-btn-primary:hover {
+  background: var(--cro-primary-hover);
+  border-color: var(--cro-primary-hover);
+  color: #fff;
+}
+
+.cro-admin-layout__content .button-primary:focus,
+.cro-ui-btn-primary:focus {
+  box-shadow: var(--cro-focus-ring);
+}
+
+/* ==========================================================================
+   Badges / pills
+   ========================================================================== */
+.cro-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  font-size: var(--cro-text-xs);
+  font-weight: 500;
+  line-height: 1.4;
+  border-radius: var(--cro-radius-sm);
+  background: var(--cro-bg-subtle);
+  color: var(--cro-text-muted);
+}
+
+.cro-badge--success {
+  background: #edfaef;
+  color: var(--cro-success);
+}
+
+.cro-badge--warning {
+  background: #fcf0e3;
+  color: #b26200;
+}
+
+.cro-badge--error {
+  background: #fcf0f1;
+  color: var(--cro-error);
+}
+
+/* ==========================================================================
+   Empty states
+   ========================================================================== */
+.cro-empty-state,
+.cro-ui-empty-state,
+.cro-empty {
+  text-align: center;
+  padding: var(--cro-space-2xl) var(--cro-space-lg);
+  max-width: 420px;
+  margin: 0 auto;
+}
+
+.cro-empty-state__icon,
+.cro-ui-empty-state__icon,
+.cro-empty__icon {
+  display: block;
+  width: 48px;
+  height: 48px;
+  margin: 0 auto var(--cro-space-md);
+  color: var(--cro-text-muted);
+  opacity: 0.7;
+  font-size: 48px;
+  line-height: 1;
+}
+
+.cro-empty-state__title,
+.cro-ui-empty-state__title,
+.cro-empty__title {
+  font-size: var(--cro-text-lg);
+  font-weight: 600;
+  color: var(--cro-text);
+  margin: 0 0 var(--cro-space-sm);
+}
+
+.cro-empty-state__text,
+.cro-ui-empty-state__desc,
+.cro-empty__desc {
+  font-size: var(--cro-text-base);
+  color: var(--cro-text-muted);
+  margin: 0 0 var(--cro-space-md);
+  line-height: 1.5;
+}
+
+.cro-empty-state__actions,
+.cro-ui-empty-state__actions,
+.cro-empty__actions {
+  margin-top: var(--cro-space-lg);
+}
+
+/* ==========================================================================
+   KPI cards
+   ========================================================================== */
+.cro-kpi,
+.cro-kpi-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--cro-space-md);
+  margin-bottom: var(--cro-space-lg);
+}
+
+.cro-kpi__item,
+.cro-kpi-card {
+  background: var(--cro-bg);
+  border: var(--cro-border-light);
+  border-radius: var(--cro-radius-md);
+  padding: var(--cro-space-md);
+  box-shadow: var(--cro-shadow-sm);
+}
+
+.cro-kpi__value,
+.cro-kpi-card__value {
+  display: block;
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--cro-text);
+  line-height: 1.3;
+  margin-bottom: 2px;
+}
+
+.cro-kpi__label,
+.cro-kpi-card__label {
+  display: block;
+  font-size: var(--cro-text-sm);
+  color: var(--cro-text-muted);
+  line-height: 1.4;
+}
+
+/* ==========================================================================
+   Toast (global)
+   ========================================================================== */
+.cro-ui-toast-container {
+  position: fixed;
+  top: 32px;
+  right: 20px;
+  z-index: 100000;
+  display: flex;
+  flex-direction: column;
+  gap: var(--cro-space-sm);
+  pointer-events: none;
+}
+
+body.admin-bar .cro-ui-toast-container {
+  top: 46px;
+}
+
+.cro-ui-toast-item {
+  padding: var(--cro-space-md) var(--cro-space-lg);
+  min-width: 200px;
+  max-width: 360px;
+  background: var(--cro-text);
+  color: #fff;
+  font-size: var(--cro-text-base);
+  line-height: 1.4;
+  border-radius: var(--cro-radius-lg);
+  box-shadow: var(--cro-shadow-md);
+}
+
+/* ==========================================================================
+   Notices
+   ========================================================================== */
+.cro-ui-notice {
+  margin: 0 0 var(--cro-space-lg);
+  padding: var(--cro-space-md) var(--cro-space-lg);
+  border-left: 4px solid var(--cro-primary);
+  background: var(--cro-bg);
+  border-radius: 0 var(--cro-radius-sm) var(--cro-radius-sm) 0;
+  box-shadow: var(--cro-shadow-sm);
+}
+
+.cro-ui-notice--error {
+  border-left-color: var(--cro-error);
+}
+
+.cro-ui-notice p {
+  margin: 0;
+  font-size: var(--cro-text-base);
+  line-height: 1.5;
+}
+
+/* ==========================================================================
+   Icons (.cro-ico – Lucide inline SVG)
+   ========================================================================== */
+.cro-ico {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  vertical-align: -0.2em;
+  flex-shrink: 0;
+  color: currentColor;
+}
+
+.cro-ico--sm {
+  width: 14px;
+  height: 14px;
+}
+
+.cro-ico--md {
+  width: 20px;
+  height: 20px;
+}
+
+.cro-ico--lg {
+  width: 24px;
+  height: 24px;
+}
+
+/* Icon + text alignment in headings and buttons */
+.cro-settings-section h2 .cro-ico,
+.cro-section-header h2 .cro-ico,
+.cro-builder-actions .cro-ico,
+.button .cro-ico {
+  margin-right: 6px;
+  vertical-align: -0.25em;
+}
+
+/* ==========================================================================
+   Utilities
+   ========================================================================== */
+.cro-ui-inner {
+  box-sizing: border-box;
+}
+
+.cro-hidden {
+  display: none;
+}
+
+.cro-muted {
+  color: var(--cro-text-muted);
+}
+
+.cro-max-w {
+  max-width: 640px;
+}
