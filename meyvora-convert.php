@@ -174,6 +174,18 @@ function cro_admin_notices() {
 add_action( 'admin_init', 'cro_admin_notices' );
 
 /**
+ * Add Settings link on Plugins list (before Deactivate), linking to Meyvora dashboard.
+ */
+function cro_plugin_action_links( $links ) {
+	if ( ! current_user_can( 'manage_meyvora_convert' ) ) {
+		return $links;
+	}
+	$settings_link = '<a href="' . esc_url( admin_url( 'admin.php?page=meyvora-convert' ) ) . '">' . esc_html__( 'Settings', 'meyvora-convert' ) . '</a>';
+	return array_merge( array( 'settings' => $settings_link ), $links );
+}
+add_filter( 'plugin_action_links_' . CRO_PLUGIN_BASENAME, 'cro_plugin_action_links', 10, 1 );
+
+/**
  * The code that runs during plugin deactivation.
  */
 function deactivate_meyvora_convert() {
