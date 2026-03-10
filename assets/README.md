@@ -1,4 +1,4 @@
-# CRO Toolkit – Plugin Assets
+# Meyvora Convert – Plugin Assets
 
 This folder contains screenshots, banners, and icons used by the WordPress.org
 plugin directory and included in the distribution zip.

@@ -1,6 +1,6 @@
 === Meyvora Convert ===
 
-Contributors: (your-username)
+Contributors: niket-thapa
 Tags: woocommerce, conversion, popup, exit intent, abandoned cart, sticky cart, shipping bar, trust badges, A/B testing, analytics
 Requires at least: 6.2
 Tested up to: 6.7
@@ -21,9 +21,9 @@ Meyvora Convert adds conversion-focused features to your WooCommerce store witho
 * **Cart optimizer** – Trust strip, urgency messaging, and optional offer banner on cart
 * **Checkout optimizer** – Secure checkout badge, guarantee note, trust strip on checkout
 * **Dynamic offers** – Rule-based personalized coupons (cart threshold, first-time/returning customer, lifetime spend, roles)
-* **Blocks support** – All CRO elements render inside WooCommerce Cart and Checkout blocks (Gutenberg)
+* **Blocks support** – All conversion elements render inside WooCommerce Cart and Checkout blocks (Gutenberg)
 * **Classic support** – Same elements via hooks on classic shortcode cart/checkout
-* **Editor support** – Insert campaigns via shortcode [cro_campaign id="123"] or the Gutenberg block "Meyvora Convert / Campaign"; Classic editor "Add CRO Campaign" button
+* **Editor support** – Insert campaigns via shortcode [cro_campaign id="123"] or the Gutenberg block "Meyvora Convert / Campaign"; Classic editor "Add Meyvora Convert Campaign" button
 
 Performance-first: assets load only on WooCommerce and feature-relevant pages unless overridden by the `cro_should_enqueue_assets` filter. No "Pro" or upgrade prompts.
 
@@ -49,15 +49,15 @@ Yes. The plugin registers an Integration with WooCommerce Blocks so trust strip,
 
 = Can I use the classic shortcode cart and checkout? =
 
-Yes. The same CRO elements (trust strip, shipping progress, offer banner, etc.) are rendered via WooCommerce hooks when you use the classic cart and checkout shortcodes.
+Yes. The same conversion elements (trust strip, shipping progress, offer banner, etc.) are rendered via WooCommerce hooks when you use the classic cart and checkout shortcodes.
 
 = How do I show a campaign on a specific page? =
 
-Use the shortcode `[cro_campaign id="123"]` with your campaign ID, or add the "Meyvora Convert / Campaign" block (Gutenberg) or use "Add CRO Campaign" in the Classic editor and pick a campaign.
+Use the shortcode `[cro_campaign id="123"]` with your campaign ID, or add the "Meyvora Convert / Campaign" block (Gutenberg) or use "Add Meyvora Convert Campaign" in the Classic editor and pick a campaign.
 
 = Are generated offer coupons secure? =
 
-Yes. Coupons use the format CRO-{offer_id}-{random6}, are single-use, and are rate-limited (one per visitor per offer per 6 hours). Admins and shop managers do not receive generated coupons.
+Yes. Coupons use the format MYV-{offer_id}-{random6}, are single-use, and are rate-limited (one per visitor per offer per 6 hours). Admins and shop managers do not receive generated coupons.
 
 == Screenshots ==
 
@@ -87,7 +87,7 @@ Meyvora Convert supports WordPress's built-in personal data export and erasure t
 * Cart and checkout optimizers (trust strip, guarantee, shipping progress).
 * WooCommerce Blocks integration (Cart and Checkout blocks).
 * Classic cart/checkout support.
-* Dynamic offers with rule builder and coupon generation (CRO-{id}-{random6}, rate limit, TTL).
+* Dynamic offers with rule builder and coupon generation (MYV-{id}-{random6}, rate limit, TTL).
 * REST API: GET/POST offer, apply coupon.
 * Shortcode [cro_campaign], Gutenberg block, Classic editor insert button.
 * System Status, Verify Install Package, Repair Database Tables, self-heal missing tables.
