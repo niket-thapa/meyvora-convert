@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name: Meyvora Convert
+ * Plugin Name: Meyvora Convert – Conversion Rate Optimizer for WooCommerce
  * Plugin URI:
  * Description: Complete conversion rate optimization for WooCommerce — exit intent popups, abandoned cart recovery, sticky cart, shipping bar, trust badges, dynamic offers, A/B testing, and analytics. Built for Meyvora stores and beyond.
  * Version: 1.0.0
