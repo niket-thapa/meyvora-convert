@@ -28,6 +28,7 @@ class CRO_Error_Handler {
 		self::$debug_mode = defined( 'WP_DEBUG' ) && WP_DEBUG;
 
 		// Set custom error handler for CRO operations
+		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_set_error_handler
 		set_error_handler( array( __CLASS__, 'handle_error' ), E_ALL );
 
 		// Register shutdown function for fatal errors
@@ -94,7 +95,7 @@ class CRO_Error_Handler {
 	 */
 	public static function log( $level, $message, $context = array() ) {
 		// Rate limiting: max 100 errors per hour
-		$hour = date( 'Y-m-d-H' );
+		$hour = gmdate( 'Y-m-d-H' );
 		if ( ! isset( self::$error_counts[ $hour ] ) ) {
 			self::$error_counts = array( $hour => 0 );
 		}
@@ -111,7 +112,7 @@ class CRO_Error_Handler {
 		$log_entry = "[{$timestamp}] [{$level}] {$message}{$context_str}" . PHP_EOL;
 
 		// Write to log file
-		if ( is_writable( dirname( self::$log_file ) ) ) {
+		if ( is_writable( dirname( self::$log_file ) ) ) { // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_is_writable
 			file_put_contents( self::$log_file, $log_entry, FILE_APPEND | LOCK_EX );
 
 			// Rotate log if too large (> 5MB)
@@ -122,6 +123,7 @@ class CRO_Error_Handler {
 
 		// Also log to WordPress debug.log if enabled
 		if ( self::$debug_mode ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			error_log( "[Meyvora Convert] [{$level}] {$message}" );
 		}
 	}
@@ -130,8 +132,8 @@ class CRO_Error_Handler {
 	 * Rotate log file
 	 */
 	private static function rotate_log() {
-		$backup = self::$log_file . '.' . date( 'Y-m-d-His' ) . '.bak';
-		rename( self::$log_file, $backup );
+		$backup = self::$log_file . '.' . gmdate( 'Y-m-d-His' ) . '.bak';
+		rename( self::$log_file, $backup ); // phpcs:ignore WordPress.WP.AlternativeFunctions.rename_rename
 
 		// Keep only last 3 backups
 		$backups = glob( self::$log_file . '.*.bak' );
@@ -142,7 +144,7 @@ class CRO_Error_Handler {
 			$to_remove = array_slice( $backups, 0, -3 );
 			foreach ( $to_remove as $path ) {
 				if ( is_file( $path ) ) {
-					unlink( $path );
+					unlink( $path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink
 				}
 			}
 		}

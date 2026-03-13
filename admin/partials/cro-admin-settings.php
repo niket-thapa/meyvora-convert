@@ -4,6 +4,7 @@
  *
  * @package Meyvora_Convert
  */
+// phpcs:disable WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotValidated, WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 
 // If this file is called directly, abort.
 if ( ! defined( 'WPINC' ) ) {

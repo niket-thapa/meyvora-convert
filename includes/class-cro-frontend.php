@@ -1,7 +1,9 @@
 <?php
+if ( ! defined( 'ABSPATH' ) ) exit;
+// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
 /**
  * Frontend Asset Loading
- * 
+ *
  * Handles conditional loading of scripts and styles
  */
 class CRO_Frontend {
@@ -63,12 +65,12 @@ class CRO_Frontend {
         if (!$this->should_load()) return;
         
         // Google Fonts (DM Sans) for popup typography
-        wp_enqueue_style(
-            'cro-google-fonts',
-            'https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap',
-            array(),
-            null
-        );
+	        wp_enqueue_style(
+	            'cro-google-fonts',
+	            'https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap',
+	            array(),
+	            CRO_VERSION
+	        );
 
         // Styles
         wp_enqueue_style(

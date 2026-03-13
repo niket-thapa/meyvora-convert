@@ -27,7 +27,7 @@ $cart_count = $cart->get_cart_contents_count();
 				printf(
 					/* translators: %d: cart item count */
 					esc_html( _n( '%d item', '%d items', $cart_count, 'meyvora-convert' ) ),
-					$cart_count
+					esc_html( number_format_i18n( (int) $cart_count ) )
 				);
 				?>
 			</span>

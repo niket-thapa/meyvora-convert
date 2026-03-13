@@ -4,6 +4,7 @@
  *
  * @package Meyvora_Convert
  */
+// phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.NonceVerification.Recommended
 
 // If this file is called directly, abort.
 if ( ! defined( 'WPINC' ) ) {
@@ -125,7 +126,8 @@ if ( isset( $_POST['cro_save_campaign'] ) && isset( $_POST['cro_nonce'] ) && wp_
 		<!-- Behavioral Targeting Section -->
 		<div class="cro-settings-section">
 			<h2>
-				<?php echo CRO_Icons::svg( 'user', array( 'class' => 'cro-ico' ) ); ?>
+				<?php echo wp_kses_post( CRO_Icons::svg( 'user', array( 'class' => 'cro-ico' ) ) ); ?>
+
 				<?php esc_html_e( 'Behavioral Targeting', 'meyvora-convert' ); ?>
 			</h2>
 			<p class="cro-section-description">

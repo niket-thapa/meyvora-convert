@@ -17,7 +17,8 @@ $filters = isset( $doc['filters'] ) && is_array( $doc['filters'] ) ? $doc['filte
 <!-- Template overrides -->
 <div class="cro-card cro-developer-section">
 		<header class="cro-card__header cro-developer-section__header">
-			<span class="cro-section-icon"><?php echo CRO_Icons::svg( 'file', array( 'class' => 'cro-ico' ) ); ?></span>
+			<span class="cro-section-icon"><?php echo wp_kses_post( CRO_Icons::svg( 'file', array( 'class' => 'cro-ico' ) ) ); ?></span>
+
 			<h2 class="cro-card__title"><?php esc_html_e( 'Template overrides', 'meyvora-convert' ); ?></h2>
 		</header>
 		<div class="cro-card__body">
@@ -40,7 +41,8 @@ $filters = isset( $doc['filters'] ) && is_array( $doc['filters'] ) ? $doc['filte
 	<!-- Actions -->
 	<div class="cro-card cro-developer-section">
 		<header class="cro-card__header cro-developer-section__header">
-			<span class="cro-section-icon"><?php echo CRO_Icons::svg( 'zap', array( 'class' => 'cro-ico' ) ); ?></span>
+			<span class="cro-section-icon"><?php echo wp_kses_post( CRO_Icons::svg( 'zap', array( 'class' => 'cro-ico' ) ) ); ?></span>
+
 			<h2 class="cro-card__title"><?php esc_html_e( 'Actions', 'meyvora-convert' ); ?></h2>
 		</header>
 		<div class="cro-card__body">
@@ -77,7 +79,8 @@ $filters = isset( $doc['filters'] ) && is_array( $doc['filters'] ) ? $doc['filte
 	<!-- Filters -->
 	<div class="cro-card cro-developer-section">
 		<header class="cro-card__header cro-developer-section__header">
-			<span class="cro-section-icon"><?php echo CRO_Icons::svg( 'settings', array( 'class' => 'cro-ico' ) ); ?></span>
+			<span class="cro-section-icon"><?php echo wp_kses_post( CRO_Icons::svg( 'settings', array( 'class' => 'cro-ico' ) ) ); ?></span>
+
 			<h2 class="cro-card__title"><?php esc_html_e( 'Filters', 'meyvora-convert' ); ?></h2>
 		</header>
 		<div class="cro-card__body">
@@ -118,7 +121,8 @@ $filters = isset( $doc['filters'] ) && is_array( $doc['filters'] ) ? $doc['filte
 	<!-- Example snippets -->
 	<div class="cro-card cro-developer-section">
 		<header class="cro-card__header cro-developer-section__header">
-			<span class="cro-section-icon"><?php echo CRO_Icons::svg( 'edit', array( 'class' => 'cro-ico' ) ); ?></span>
+			<span class="cro-section-icon"><?php echo wp_kses_post( CRO_Icons::svg( 'edit', array( 'class' => 'cro-ico' ) ) ); ?></span>
+
 			<h2 class="cro-card__title"><?php esc_html_e( 'Example snippets', 'meyvora-convert' ); ?></h2>
 		</header>
 		<div class="cro-card__body">

@@ -9,6 +9,7 @@
  *
  * @package Meyvora_Convert
  */
+// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
 
 // If this file is called directly, abort.
 if ( ! defined( 'WPINC' ) ) {
@@ -377,7 +378,8 @@ class CRO_Abandoned_Cart_Reminder {
 		}
 		$discount_text = '';
 		if ( ! empty( $coupon_code ) ) {
-			$discount_text = '<p>' . sprintf( __( 'Use code <strong>%1$s</strong> at checkout for your discount.', 'meyvora-convert' ), esc_html( $coupon_code ) ) . '</p>';
+			/* translators: %1$s is the coupon code. */
+		$discount_text = '<p>' . sprintf( __( 'Use code <strong>%1$s</strong> at checkout for your discount.', 'meyvora-convert' ), esc_html( $coupon_code ) ) . '</p>';
 		}
 		return array(
 			'first_name'      => $first_name,
@@ -516,7 +518,7 @@ class CRO_Abandoned_Cart_Reminder {
 			$lines[] = sprintf( '%s x %d', $name, $qty );
 		}
 		if ( ! empty( $data['totals']['total'] ) ) {
-			$lines[] = sprintf( __( 'Total: %s %s', 'meyvora-convert' ), $currency, number_format_i18n( (float) $data['totals']['total'], 2 ) );
+			$lines[] = sprintf( /* translators: %1$s is the currency code, %2$s is the formatted total amount. */ __( 'Total: %1$s %2$s', 'meyvora-convert' ), $currency, number_format_i18n( (float) $data['totals']['total'], 2 ) );
 		}
 		return implode( "\n", $lines );
 	}

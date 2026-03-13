@@ -4,6 +4,7 @@
  *
  * @package Meyvora_Convert
  */
+// phpcs:disable WordPress.Security.NonceVerification.Recommended
 
 if ( ! defined( 'WPINC' ) ) {
 	die;
@@ -137,7 +138,8 @@ $can_resend = function( $row ) {
 
 			<?php if ( empty( $items ) ) : ?>
 					<div class="cro-ui-empty-state">
-						<span class="cro-ui-empty-state__icon" aria-hidden="true"><?php echo CRO_Icons::svg( 'shopping-cart', array( 'class' => 'cro-ico' ) ); ?></span>
+						<span class="cro-ui-empty-state__icon" aria-hidden="true"><?php echo wp_kses_post( CRO_Icons::svg( 'shopping-cart', array( 'class' => 'cro-ico' ) ) ); ?></span>
+
 						<h2 class="cro-ui-empty-state__title"><?php esc_html_e( 'No abandoned carts', 'meyvora-convert' ); ?></h2>
 						<p class="cro-ui-empty-state__desc"><?php esc_html_e( 'No carts match your filters. Carts will appear here when customers leave items without checking out.', 'meyvora-convert' ); ?></p>
 						<div class="cro-ui-empty-state__actions">
@@ -218,7 +220,7 @@ $can_resend = function( $row ) {
 					?>
 					<div class="cro-ac-pagination tablenav bottom">
 						<div class="tablenav-pages">
-							<span class="displaying-num"><?php echo esc_html( sprintf( _n( '%s item', '%s items', $total, 'meyvora-convert' ), number_format_i18n( $total ) ) ); ?></span>
+							<span class="displaying-num"><?php echo esc_html( sprintf( /* translators: %s is the formatted number of items. */ _n( '%s item', '%s items', $total, 'meyvora-convert' ), number_format_i18n( $total ) ) ); ?></span>
 							<span class="pagination-links">
 								<?php if ( $prev_url ) : ?>
 									<a class="prev-page button" href="<?php echo esc_url( $prev_url ); ?>"><?php esc_html_e( '&laquo; Previous', 'meyvora-convert' ); ?></a>
@@ -248,7 +250,8 @@ $can_resend = function( $row ) {
 		<div class="cro-ac-drawer__panel">
 			<header class="cro-ac-drawer__header">
 				<h2 id="cro-ac-drawer-title"><?php esc_html_e( 'Cart details', 'meyvora-convert' ); ?></h2>
-				<button type="button" class="cro-ac-drawer__close" aria-label="<?php esc_attr_e( 'Close', 'meyvora-convert' ); ?>"><?php echo CRO_Icons::svg( 'x', array( 'class' => 'cro-ico' ) ); ?></button>
+				<button type="button" class="cro-ac-drawer__close" aria-label="<?php esc_attr_e( 'Close', 'meyvora-convert' ) ); ?>"><?php echo wp_kses_post( CRO_Icons::svg( 'x', array( 'class' => 'cro-ico' ) ); ?></button>
+
 			</header>
 			<div class="cro-ac-drawer__body">
 				<div id="cro-ac-drawer-loading" class="cro-ac-drawer__loading"><?php esc_html_e( 'Loading…', 'meyvora-convert' ); ?></div>

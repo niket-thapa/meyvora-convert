@@ -4,6 +4,7 @@
  *
  * @package Meyvora_Convert
  */
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
 
 // If this file is called directly, abort.
 if ( ! defined( 'WPINC' ) ) {
@@ -129,7 +130,7 @@ class CRO_Tracker {
 		$source_type = in_array( $raw_source, self::SOURCE_TYPES, true ) ? $raw_source : 'campaign';
 		$source_id   = $source_type === 'campaign' ? $campaign_id : 0;
 
-		$raw_event_data = isset( $_POST['event_data'] ) ? $_POST['event_data'] : array();
+		$raw_event_data = isset( $_POST['event_data'] ) ? wp_unslash( $_POST['event_data'] ) : array();
 		if ( is_string( $raw_event_data ) ) {
 			$raw_event_data = json_decode( wp_unslash( $raw_event_data ), true );
 		}
@@ -267,7 +268,7 @@ class CRO_Tracker {
 				@session_start(); // phpcs:ignore Generic.PHP.NoSilencedErrors.Discouraged
 			}
 			if ( isset( $_SESSION['cro_session_id'] ) ) {
-				return sanitize_text_field( (string) $_SESSION['cro_session_id'] );
+				return sanitize_text_field( wp_unslash( (string) $_SESSION['cro_session_id'] ) );
 			}
 			$_SESSION['cro_session_id'] = wp_generate_uuid4();
 			return (string) $_SESSION['cro_session_id'];

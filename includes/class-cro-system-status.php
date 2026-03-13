@@ -4,6 +4,7 @@
  *
  * @package Meyvora_Convert
  */
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 
 // If this file is called directly, abort.
 if ( ! defined( 'WPINC' ) ) {
@@ -66,6 +67,7 @@ class CRO_System_Status {
 			'pass'    => empty( $missing_tables ),
 			'message' => empty( $missing_tables )
 				? __( 'All CRO tables present', 'meyvora-convert' )
+				/* translators: %s is a comma-separated list of missing database table names. */
 				: sprintf( __( 'Missing: %s', 'meyvora-convert' ), implode( ', ', $missing_tables ) ),
 		);
 
@@ -79,6 +81,7 @@ class CRO_System_Status {
 			'message' => $has_js && $has_php
 				? __( 'index.js and index.asset.php present', 'meyvora-convert' )
 				: sprintf(
+					/* translators: %s is a comma-separated list of missing build asset file names. */
 					__( 'Missing: %s', 'meyvora-convert' ),
 					implode( ', ', array_filter( array(
 						$has_js ? '' : 'blocks/cart-checkout-extension/build/index.js',
@@ -120,6 +123,7 @@ class CRO_System_Status {
 			'label'   => __( 'WooCommerce active', 'meyvora-convert' ),
 			'pass'    => $wc_active,
 			'message' => $wc_active
+				/* translators: %s is the WooCommerce plugin version number. */
 				? ( defined( 'WC_VERSION' ) ? sprintf( __( 'Active (version %s)', 'meyvora-convert' ), WC_VERSION ) : __( 'Active', 'meyvora-convert' ) )
 				: __( 'WooCommerce is not active.', 'meyvora-convert' ),
 		);
@@ -148,6 +152,7 @@ class CRO_System_Status {
 			'message' => $has_js && $has_php
 				? __( 'index.js and index.asset.php present.', 'meyvora-convert' )
 				: sprintf(
+					/* translators: %s: list of missing asset file paths. */
 					__( 'Missing: %s', 'meyvora-convert' ),
 					implode( ', ', array_filter( array(
 						$has_js ? '' : 'blocks/cart-checkout-extension/build/index.js',
@@ -172,8 +177,9 @@ class CRO_System_Status {
 			'label'   => __( 'REST offer endpoints reachable', 'meyvora-convert' ),
 			'pass'    => $offer_ok,
 			'message' => $offer_ok
+			/* translators: %d is the HTTP response code. */
 				? sprintf( __( 'Reachable (HTTP %d)', 'meyvora-convert' ), $offer_code )
-				: ( $offer_err ? $offer_err : sprintf( __( 'Unexpected response: HTTP %s', 'meyvora-convert' ), $offer_code ) ),
+				: ( $offer_err ? $offer_err : sprintf( /* translators: %s is the HTTP response code. */ __( 'Unexpected response: HTTP %s', 'meyvora-convert' ), $offer_code ) ),
 		);
 
 		// 5) Required DB tables exist; if missing run create_tables() and show result + last_error
@@ -256,6 +262,7 @@ class CRO_System_Status {
 			'message' => ( $builder_css && $builder_js )
 				? __( 'cro-campaign-builder.css and .js present.', 'meyvora-convert' )
 				: sprintf(
+					/* translators: %s is a comma-separated list of missing asset file names. */
 					__( 'Missing: %s', 'meyvora-convert' ),
 					implode( ', ', array_filter( array(
 						$builder_css ? '' : 'admin/css/cro-campaign-builder.css',
@@ -285,8 +292,9 @@ class CRO_System_Status {
 			'label'   => __( 'UI & Builder: no legacy CRO admin CSS', 'meyvora-convert' ),
 			'pass'    => empty( $legacy_cro_css ),
 			'message' => empty( $legacy_cro_css )
-				? ( empty( $cro_css_handles ) ? __( 'Design system and page-specific only.', 'meyvora-convert' ) : sprintf( __( 'CRO CSS loaded: %s', 'meyvora-convert' ), implode( ', ', $cro_css_handles ) ) )
+				? ( empty( $cro_css_handles ) ? __( 'Design system and page-specific only.', 'meyvora-convert' ) : sprintf( /* translators: %s is a comma-separated list of CSS handles. */ __( 'CRO CSS loaded: %s', 'meyvora-convert' ), implode( ', ', $cro_css_handles ) ) )
 				: sprintf(
+				/* translators: %s is a comma-separated list of CSS handle names. */
 					__( 'Legacy CSS enqueued (remove from code): %s', 'meyvora-convert' ),
 					implode( ', ', $legacy_cro_css )
 				),
@@ -317,7 +325,7 @@ class CRO_System_Status {
 			'label'   => __( 'WooCommerce active', 'meyvora-convert' ),
 			'status'  => $active ? 'ok' : 'warning',
 			'message'  => $active
-				? ( $version ? sprintf( __( 'Active (version %s)', 'meyvora-convert' ), $version ) : __( 'Active', 'meyvora-convert' ) )
+				? ( $version ? sprintf( /* translators: %s is the WooCommerce version number. */ __( 'Active (version %s)', 'meyvora-convert' ), $version ) : __( 'Active', 'meyvora-convert' ) )
 				: __( 'Not active', 'meyvora-convert' ),
 			'detail'  => $active ? '' : __( 'Some features (shipping bar, sticky cart, cart/checkout optimizer) require WooCommerce.', 'meyvora-convert' ),
 		);
@@ -435,6 +443,7 @@ class CRO_System_Status {
 		return array(
 			'label'   => __( 'Custom tables status', 'meyvora-convert' ),
 			'status'  => count( $missing ) === count( $tables ) ? 'error' : 'warning',
+		/* translators: %s is a comma-separated list of missing database table names. */
 			'message'  => sprintf( __( 'Missing: %s', 'meyvora-convert' ), implode( ', ', $missing ) ),
 			'detail'  => __( 'Deactivate and reactivate the plugin to create tables, or run the activation routine.', 'meyvora-convert' ),
 		);
@@ -534,7 +543,8 @@ class CRO_System_Status {
 		return array(
 			'label'   => __( 'Cron (scheduled tasks)', 'meyvora-convert' ),
 			'status'  => 'ok',
-			'message'  => sprintf( __( 'Scheduled (next: %s)', 'meyvora-convert' ), $next_readable ),
+				/* translators: %s is the date and time the next scheduled task will run. */
+		'message'  => sprintf( __( 'Scheduled (next: %s)', 'meyvora-convert' ), $next_readable ),
 			'detail'  => implode( ', ', array_keys( $found ) ),
 		);
 	}
@@ -566,6 +576,7 @@ class CRO_System_Status {
 			return array(
 				'label'   => __( 'REST API reachable', 'meyvora-convert' ),
 				'status'  => 'ok',
+			/* translators: %d is the HTTP response code. */
 				'message'  => sprintf( __( 'Reachable (HTTP %d)', 'meyvora-convert' ), $code ),
 				'detail'  => $url,
 			);
@@ -573,7 +584,8 @@ class CRO_System_Status {
 		return array(
 			'label'   => __( 'REST API reachable', 'meyvora-convert' ),
 			'status'  => ( $code >= 500 || $code === 0 ) ? 'error' : 'warning',
-			'message'  => sprintf( __( 'Unexpected response: HTTP %d', 'meyvora-convert' ), $code ),
+				/* translators: %d is the HTTP response code. */
+		'message'  => sprintf( __( 'Unexpected response: HTTP %d', 'meyvora-convert' ), $code ),
 			'detail'  => $url,
 		);
 	}

@@ -33,34 +33,44 @@ class CRO_Campaign {
 
 		$args = wp_parse_args( $args, $defaults );
 
-		$table_name = $wpdb->prefix . 'cro_campaigns';
-		$where      = array( '1=1' );
-		$where_args = array();
-
-		if ( ! empty( $args['status'] ) ) {
-			$where[]      = 'status = %s';
-			$where_args[] = $args['status'];
-		}
-
+		$table_name = esc_sql( $wpdb->prefix . 'cro_campaigns' );
+		$status = ! empty( $args['status'] ) ? sanitize_text_field( $args['status'] ) : '';
+		$type = '';
 		if ( ! empty( $args['type'] ) || ! empty( $args['campaign_type'] ) ) {
 			$type = ! empty( $args['campaign_type'] ) ? $args['campaign_type'] : $args['type'];
-			$where[]      = 'campaign_type = %s';
-			$where_args[] = $type;
+			$type = sanitize_text_field( $type );
 		}
 
-		$where_clause = implode( ' AND ', $where );
-
-		$query = "SELECT * FROM $table_name WHERE $where_clause ORDER BY created_at DESC";
+		$query_args = array( $status, $status, $type, $type );
 
 		if ( $args['limit'] > 0 ) {
-			$query .= $wpdb->prepare( ' LIMIT %d OFFSET %d', $args['limit'], $args['offset'] );
+			$query_args[] = (int) $args['limit'];
+			$query_args[] = (int) $args['offset'];
+				return $wpdb->get_results(
+					$wpdb->prepare(
+						// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
+						"SELECT * FROM {$table_name}
+						WHERE ( %s = '' OR status = %s )
+						AND ( %s = '' OR campaign_type = %s )
+						ORDER BY created_at DESC
+						LIMIT %d OFFSET %d",
+					...$query_args
+				),
+				ARRAY_A
+			);
 		}
 
-		if ( ! empty( $where_args ) ) {
-			$query = $wpdb->prepare( $query, $where_args );
-		}
-
-		return $wpdb->get_results( $query, ARRAY_A );
+		return $wpdb->get_results(
+			$wpdb->prepare(
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
+				"SELECT * FROM {$table_name}
+				WHERE ( %s = '' OR status = %s )
+				AND ( %s = '' OR campaign_type = %s )
+				ORDER BY created_at DESC",
+				...$query_args
+			),
+			ARRAY_A
+		);
 	}
 
 	/**
@@ -72,11 +82,12 @@ class CRO_Campaign {
 	public static function get( $id ) {
 		global $wpdb;
 
-		$table_name = $wpdb->prefix . 'cro_campaigns';
+		$table_name = esc_sql( $wpdb->prefix . 'cro_campaigns' );
 
 		$campaign = $wpdb->get_row(
 			$wpdb->prepare(
-				"SELECT * FROM $table_name WHERE id = %d",
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
+				"SELECT * FROM {$table_name} WHERE id = %d",
 				$id
 			),
 			ARRAY_A

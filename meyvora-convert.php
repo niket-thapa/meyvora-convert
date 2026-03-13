@@ -49,10 +49,6 @@ require_once CRO_PLUGIN_DIR . 'includes/engine/class-cro-decision-engine.php';
 require_once CRO_PLUGIN_DIR . 'includes/ab-testing/class-cro-ab-test.php';
 require_once CRO_PLUGIN_DIR . 'includes/ab-testing/class-cro-ab-statistics.php';
 
-// Load textdomain at init priority 0 so WP 6.7+ does not trigger "translation too early" (translations must be at init or later).
-add_action( 'init', function() {
-	load_plugin_textdomain( 'meyvora-convert', false, dirname( CRO_PLUGIN_BASENAME ) . '/languages/' );
-}, 0 );
 
 add_action( 'plugins_loaded', function() {
 	CRO_Visitor_State::get_instance();

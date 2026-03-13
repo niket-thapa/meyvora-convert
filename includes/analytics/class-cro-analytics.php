@@ -2,6 +2,7 @@
 /**
  * Analytics Data Model
  */
+// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
 class CRO_Analytics {
     
     private $events_table;
@@ -27,15 +28,17 @@ class CRO_Analytics {
         $summary   = $analytics->get_summary( $date_from, $date_to );
 
         global $wpdb;
-        $events_table = $wpdb->prefix . 'cro_events';
+        $events_table = esc_sql( $wpdb->prefix . 'cro_events' );
         $coupons      = 0;
         $table_exists = $wpdb->get_var( $wpdb->prepare( "SHOW TABLES LIKE %s", $events_table ) );
         if ( $table_exists ) {
-            $coupons = (int) $wpdb->get_var( $wpdb->prepare(
-                "SELECT COUNT(*) FROM {$events_table} WHERE DATE(created_at) BETWEEN %s AND %s AND event_type = 'conversion' AND coupon_code IS NOT NULL AND coupon_code != ''",
-                $date_from,
-                $date_to
-            ) );
+            $coupons = (int) $wpdb->get_var(
+                $wpdb->prepare(
+                    "SELECT COUNT(*) FROM {$events_table} WHERE DATE(created_at) BETWEEN %s AND %s AND event_type = 'conversion' AND coupon_code IS NOT NULL AND coupon_code != ''",
+                    $date_from,
+                    $date_to
+                )
+            );
         }
 
         return array(
@@ -138,46 +141,102 @@ class CRO_Analytics {
     private function get_summary_internal( $date_from, $date_to, $campaign_id = null ) {
         global $wpdb;
 
-        $campaign_where = '';
-        $campaign_join  = '';
-        if ( $campaign_id !== null && $campaign_id > 0 ) {
-            $campaign_id  = absint( $campaign_id );
-            $campaign_where = $wpdb->prepare( " AND source_type = 'campaign' AND source_id = %d", $campaign_id );
+        $events_table = esc_sql( $this->events_table );
+        $campaign_id = ( $campaign_id !== null && $campaign_id > 0 ) ? absint( $campaign_id ) : null;
+
+        if ( $campaign_id ) {
+            $impressions = (int) $wpdb->get_var(
+                $wpdb->prepare(
+                    "SELECT COUNT(*) FROM {$events_table} WHERE DATE(created_at) BETWEEN %s AND %s AND event_type = 'impression' AND source_type = 'campaign' AND source_id = %d",
+                    $date_from,
+                    $date_to,
+                    $campaign_id
+                )
+            );
+            $clicks = (int) $wpdb->get_var(
+                $wpdb->prepare(
+                    "SELECT COUNT(*) FROM {$events_table} WHERE DATE(created_at) BETWEEN %s AND %s AND event_type = 'interaction' AND source_type = 'campaign' AND source_id = %d",
+                    $date_from,
+                    $date_to,
+                    $campaign_id
+                )
+            );
+            $conversions = (int) $wpdb->get_var(
+                $wpdb->prepare(
+                    "SELECT COUNT(*) FROM {$events_table} WHERE DATE(created_at) BETWEEN %s AND %s AND event_type = 'conversion' AND source_type = 'campaign' AND source_id = %d",
+                    $date_from,
+                    $date_to,
+                    $campaign_id
+                )
+            );
+            $revenue = (float) $wpdb->get_var(
+                $wpdb->prepare(
+                    "SELECT COALESCE(SUM(order_value), 0) FROM {$events_table} WHERE DATE(created_at) BETWEEN %s AND %s AND event_type = 'conversion' AND source_type = 'campaign' AND source_id = %d",
+                    $date_from,
+                    $date_to,
+                    $campaign_id
+                )
+            );
+            $emails = (int) $wpdb->get_var(
+                $wpdb->prepare(
+                    "SELECT COUNT(*) FROM {$events_table} WHERE DATE(created_at) BETWEEN %s AND %s AND event_type = 'conversion' AND email IS NOT NULL AND source_type = 'campaign' AND source_id = %d",
+                    $date_from,
+                    $date_to,
+                    $campaign_id
+                )
+            );
+        } else {
+            $impressions = (int) $wpdb->get_var(
+                $wpdb->prepare(
+                    "SELECT COUNT(*) FROM {$events_table} WHERE DATE(created_at) BETWEEN %s AND %s AND event_type = 'impression'",
+                    $date_from,
+                    $date_to
+                )
+            );
+            $clicks = (int) $wpdb->get_var(
+                $wpdb->prepare(
+                    "SELECT COUNT(*) FROM {$events_table} WHERE DATE(created_at) BETWEEN %s AND %s AND event_type = 'interaction' AND source_type = 'campaign'",
+                    $date_from,
+                    $date_to
+                )
+            );
+            $conversions = (int) $wpdb->get_var(
+                $wpdb->prepare(
+                    "SELECT COUNT(*) FROM {$events_table} WHERE DATE(created_at) BETWEEN %s AND %s AND event_type = 'conversion'",
+                    $date_from,
+                    $date_to
+                )
+            );
+            $revenue = (float) $wpdb->get_var(
+                $wpdb->prepare(
+                    "SELECT COALESCE(SUM(order_value), 0) FROM {$events_table} WHERE DATE(created_at) BETWEEN %s AND %s AND event_type = 'conversion'",
+                    $date_from,
+                    $date_to
+                )
+            );
+            $emails = (int) $wpdb->get_var(
+                $wpdb->prepare(
+                    "SELECT COUNT(*) FROM {$events_table} WHERE DATE(created_at) BETWEEN %s AND %s AND event_type = 'conversion' AND email IS NOT NULL",
+                    $date_from,
+                    $date_to
+                )
+            );
         }
-        $booster_where = ''; // Sticky/shipping are not campaign-scoped.
-
-        $where = $wpdb->prepare(
-            "WHERE DATE(created_at) BETWEEN %s AND %s",
-            $date_from,
-            $date_to
-        );
-
-        $impressions = (int) $wpdb->get_var(
-            "SELECT COUNT(*) FROM {$this->events_table} {$where} AND event_type = 'impression' {$campaign_where}"
-        );
-
-        $clicks = (int) $wpdb->get_var(
-            "SELECT COUNT(*) FROM {$this->events_table} {$where} AND event_type = 'interaction' AND source_type = 'campaign' " . ( $campaign_id ? $wpdb->prepare( 'AND source_id = %d', $campaign_id ) : '' )
-        );
-
-        $conversions = (int) $wpdb->get_var(
-            "SELECT COUNT(*) FROM {$this->events_table} {$where} AND event_type = 'conversion' {$campaign_where}"
-        );
-
-        $revenue = (float) $wpdb->get_var(
-            "SELECT COALESCE(SUM(order_value), 0) FROM {$this->events_table} {$where} AND event_type = 'conversion' {$campaign_where}"
-        );
-
-        $emails = (int) $wpdb->get_var(
-            "SELECT COUNT(*) FROM {$this->events_table} {$where} AND event_type = 'conversion' AND email IS NOT NULL {$campaign_where}"
-        );
 
         $sticky_cart_adds = (int) $wpdb->get_var(
-            "SELECT COUNT(*) FROM {$this->events_table} {$where} AND source_type = 'sticky_cart' AND event_type = 'interaction'"
+            $wpdb->prepare(
+                "SELECT COUNT(*) FROM {$events_table} WHERE DATE(created_at) BETWEEN %s AND %s AND source_type = 'sticky_cart' AND event_type = 'interaction'",
+                $date_from,
+                $date_to
+            )
         );
 
         $shipping_bar_interactions = (int) $wpdb->get_var(
-            "SELECT COUNT(*) FROM {$this->events_table} {$where} AND source_type = 'shipping_bar' AND event_type = 'interaction'"
+            $wpdb->prepare(
+                "SELECT COUNT(*) FROM {$events_table} WHERE DATE(created_at) BETWEEN %s AND %s AND source_type = 'shipping_bar' AND event_type = 'interaction'",
+                $date_from,
+                $date_to
+            )
         );
 
         $conversion_rate = $impressions > 0 ? ( $conversions / $impressions ) * 100 : 0;
@@ -187,24 +246,69 @@ class CRO_Analytics {
         $days = ( strtotime( $date_to ) - strtotime( $date_from ) ) / 86400;
         $prev_from = wp_date( 'Y-m-d', strtotime( $date_from . " -{$days} days" ) );
         $prev_to   = wp_date( 'Y-m-d', strtotime( $date_from . ' -1 day' ) );
-        $prev_where = $wpdb->prepare(
-            "WHERE DATE(created_at) BETWEEN %s AND %s",
-            $prev_from,
-            $prev_to
-        );
-        $prev_campaign_where = $campaign_id !== null && $campaign_id > 0 ? $wpdb->prepare( " AND source_type = 'campaign' AND source_id = %d", $campaign_id ) : '';
-        $prev_impressions = (int) $wpdb->get_var(
-            "SELECT COUNT(*) FROM {$this->events_table} {$prev_where} AND event_type = 'impression' {$prev_campaign_where}"
-        );
-        $prev_conversions = (int) $wpdb->get_var(
-            "SELECT COUNT(*) FROM {$this->events_table} {$prev_where} AND event_type = 'conversion' {$prev_campaign_where}"
-        );
-        $prev_revenue = (float) $wpdb->get_var(
-            "SELECT COALESCE(SUM(order_value), 0) FROM {$this->events_table} {$prev_where} AND event_type = 'conversion' {$prev_campaign_where}"
-        );
-        $prev_emails = (int) $wpdb->get_var(
-            "SELECT COUNT(*) FROM {$this->events_table} {$prev_where} AND event_type = 'conversion' AND email IS NOT NULL {$prev_campaign_where}"
-        );
+        if ( $campaign_id ) {
+            $prev_impressions = (int) $wpdb->get_var(
+                $wpdb->prepare(
+                    "SELECT COUNT(*) FROM {$events_table} WHERE DATE(created_at) BETWEEN %s AND %s AND event_type = 'impression' AND source_type = 'campaign' AND source_id = %d",
+                    $prev_from,
+                    $prev_to,
+                    $campaign_id
+                )
+            );
+            $prev_conversions = (int) $wpdb->get_var(
+                $wpdb->prepare(
+                    "SELECT COUNT(*) FROM {$events_table} WHERE DATE(created_at) BETWEEN %s AND %s AND event_type = 'conversion' AND source_type = 'campaign' AND source_id = %d",
+                    $prev_from,
+                    $prev_to,
+                    $campaign_id
+                )
+            );
+            $prev_revenue = (float) $wpdb->get_var(
+                $wpdb->prepare(
+                    "SELECT COALESCE(SUM(order_value), 0) FROM {$events_table} WHERE DATE(created_at) BETWEEN %s AND %s AND event_type = 'conversion' AND source_type = 'campaign' AND source_id = %d",
+                    $prev_from,
+                    $prev_to,
+                    $campaign_id
+                )
+            );
+            $prev_emails = (int) $wpdb->get_var(
+                $wpdb->prepare(
+                    "SELECT COUNT(*) FROM {$events_table} WHERE DATE(created_at) BETWEEN %s AND %s AND event_type = 'conversion' AND email IS NOT NULL AND source_type = 'campaign' AND source_id = %d",
+                    $prev_from,
+                    $prev_to,
+                    $campaign_id
+                )
+            );
+        } else {
+            $prev_impressions = (int) $wpdb->get_var(
+                $wpdb->prepare(
+                    "SELECT COUNT(*) FROM {$events_table} WHERE DATE(created_at) BETWEEN %s AND %s AND event_type = 'impression'",
+                    $prev_from,
+                    $prev_to
+                )
+            );
+            $prev_conversions = (int) $wpdb->get_var(
+                $wpdb->prepare(
+                    "SELECT COUNT(*) FROM {$events_table} WHERE DATE(created_at) BETWEEN %s AND %s AND event_type = 'conversion'",
+                    $prev_from,
+                    $prev_to
+                )
+            );
+            $prev_revenue = (float) $wpdb->get_var(
+                $wpdb->prepare(
+                    "SELECT COALESCE(SUM(order_value), 0) FROM {$events_table} WHERE DATE(created_at) BETWEEN %s AND %s AND event_type = 'conversion'",
+                    $prev_from,
+                    $prev_to
+                )
+            );
+            $prev_emails = (int) $wpdb->get_var(
+                $wpdb->prepare(
+                    "SELECT COUNT(*) FROM {$events_table} WHERE DATE(created_at) BETWEEN %s AND %s AND event_type = 'conversion' AND email IS NOT NULL",
+                    $prev_from,
+                    $prev_to
+                )
+            );
+        }
 
         return array(
             'impressions' => $impressions,
@@ -245,27 +349,49 @@ class CRO_Analytics {
     public function get_daily_stats( $date_from, $date_to, $campaign_id = null ) {
         global $wpdb;
 
-        $table_exists = $wpdb->get_var( $wpdb->prepare( "SHOW TABLES LIKE %s", $this->events_table ) );
+        $events_table = esc_sql( $this->events_table );
+        $table_exists = $wpdb->get_var( $wpdb->prepare( "SHOW TABLES LIKE %s", $events_table ) );
         if ( ! $table_exists ) {
             return array();
         }
 
-        $campaign_where = '';
-        if ( $campaign_id !== null && $campaign_id > 0 ) {
-            $campaign_id = absint( $campaign_id );
-            $campaign_where = $wpdb->prepare( " AND source_type = 'campaign' AND source_id = %d", $campaign_id );
+        $campaign_id = ( $campaign_id !== null && $campaign_id > 0 ) ? absint( $campaign_id ) : null;
+        if ( $campaign_id ) {
+            $results = $wpdb->get_results(
+                $wpdb->prepare(
+                    "SELECT 
+                        DATE(created_at) as date,
+                        SUM(CASE WHEN event_type = 'impression' THEN 1 ELSE 0 END) as impressions,
+                        SUM(CASE WHEN event_type = 'conversion' THEN 1 ELSE 0 END) as conversions,
+                        SUM(CASE WHEN event_type = 'conversion' THEN order_value ELSE 0 END) as revenue
+                    FROM {$events_table}
+                    WHERE DATE(created_at) BETWEEN %s AND %s AND source_type = 'campaign' AND source_id = %d
+                    GROUP BY DATE(created_at)
+                    ORDER BY date ASC",
+                    $date_from,
+                    $date_to,
+                    $campaign_id
+                ),
+                ARRAY_A
+            );
+        } else {
+            $results = $wpdb->get_results(
+                $wpdb->prepare(
+                    "SELECT 
+                        DATE(created_at) as date,
+                        SUM(CASE WHEN event_type = 'impression' THEN 1 ELSE 0 END) as impressions,
+                        SUM(CASE WHEN event_type = 'conversion' THEN 1 ELSE 0 END) as conversions,
+                        SUM(CASE WHEN event_type = 'conversion' THEN order_value ELSE 0 END) as revenue
+                    FROM {$events_table}
+                    WHERE DATE(created_at) BETWEEN %s AND %s
+                    GROUP BY DATE(created_at)
+                    ORDER BY date ASC",
+                    $date_from,
+                    $date_to
+                ),
+                ARRAY_A
+            );
         }
-
-        $sql = "SELECT 
-                DATE(created_at) as date,
-                SUM(CASE WHEN event_type = 'impression' THEN 1 ELSE 0 END) as impressions,
-                SUM(CASE WHEN event_type = 'conversion' THEN 1 ELSE 0 END) as conversions,
-                SUM(CASE WHEN event_type = 'conversion' THEN order_value ELSE 0 END) as revenue
-            FROM {$this->events_table}
-            WHERE DATE(created_at) BETWEEN %s AND %s {$campaign_where}
-            GROUP BY DATE(created_at)
-            ORDER BY date ASC";
-        $results = $wpdb->get_results( $wpdb->prepare( $sql, $date_from, $date_to ), ARRAY_A );
 
         $data_map = array();
         foreach ( $results as $row ) {
@@ -295,10 +421,12 @@ class CRO_Analytics {
      */
     public function get_campaign_performance($date_from, $date_to, $limit = 10) {
         global $wpdb;
+        $campaigns_table = esc_sql( $this->campaigns_table );
+        $events_table    = esc_sql( $this->events_table );
         
         // Check if tables exist
-        $events_exists = $wpdb->get_var($wpdb->prepare("SHOW TABLES LIKE %s", $this->events_table));
-        $campaigns_exists = $wpdb->get_var($wpdb->prepare("SHOW TABLES LIKE %s", $this->campaigns_table));
+        $events_exists = $wpdb->get_var( $wpdb->prepare( "SHOW TABLES LIKE %s", $events_table ) );
+        $campaigns_exists = $wpdb->get_var( $wpdb->prepare( "SHOW TABLES LIKE %s", $campaigns_table ) );
         
         if (!$events_exists || !$campaigns_exists) {
             return array();
@@ -313,8 +441,8 @@ class CRO_Analytics {
                 COUNT(CASE WHEN e.event_type = 'conversion' THEN 1 END) as conversions,
                 COALESCE(SUM(CASE WHEN e.event_type = 'conversion' THEN e.order_value END), 0) as revenue,
                 COUNT(CASE WHEN e.event_type = 'conversion' AND e.email IS NOT NULL AND e.email != '' THEN 1 END) as emails
-            FROM {$this->campaigns_table} c
-            LEFT JOIN {$this->events_table} e ON e.source_type = 'campaign' AND e.source_id = c.id 
+            FROM {$campaigns_table} c
+            LEFT JOIN {$events_table} e ON e.source_type = 'campaign' AND e.source_id = c.id 
                 AND DATE(e.created_at) BETWEEN %s AND %s
             GROUP BY c.id
             ORDER BY revenue DESC
@@ -328,9 +456,10 @@ class CRO_Analytics {
      */
     public function get_device_stats($date_from, $date_to) {
         global $wpdb;
+        $events_table = esc_sql( $this->events_table );
         
         // Check if table exists
-        $table_exists = $wpdb->get_var($wpdb->prepare("SHOW TABLES LIKE %s", $this->events_table));
+        $table_exists = $wpdb->get_var( $wpdb->prepare( "SHOW TABLES LIKE %s", $events_table ) );
         
         if (!$table_exists) {
             return array();
@@ -341,7 +470,7 @@ class CRO_Analytics {
                 COALESCE(device_type, 'unknown') as device,
                 COUNT(CASE WHEN event_type = 'impression' THEN 1 END) as impressions,
                 COUNT(CASE WHEN event_type = 'conversion' THEN 1 END) as conversions
-            FROM {$this->events_table}
+            FROM {$events_table}
             WHERE DATE(created_at) BETWEEN %s AND %s
             GROUP BY device_type",
             $date_from, $date_to
@@ -360,28 +489,53 @@ class CRO_Analytics {
     public function get_top_pages( $date_from, $date_to, $limit = 10, $campaign_id = null ) {
         global $wpdb;
 
-        $table_exists = $wpdb->get_var( $wpdb->prepare( "SHOW TABLES LIKE %s", $this->events_table ) );
+        $events_table = esc_sql( $this->events_table );
+        $table_exists = $wpdb->get_var( $wpdb->prepare( "SHOW TABLES LIKE %s", $events_table ) );
         if ( ! $table_exists ) {
             return array();
         }
 
-        $campaign_where = '';
-        if ( $campaign_id !== null && $campaign_id > 0 ) {
-            $campaign_id = absint( $campaign_id );
-            $campaign_where = $wpdb->prepare( " AND source_type = 'campaign' AND source_id = %d", $campaign_id );
+        $campaign_id = ( $campaign_id !== null && $campaign_id > 0 ) ? absint( $campaign_id ) : null;
+        if ( $campaign_id ) {
+            return $wpdb->get_results(
+                $wpdb->prepare(
+                    "SELECT 
+                        page_url,
+                        COUNT(CASE WHEN event_type = 'impression' THEN 1 END) as impressions,
+                        COUNT(CASE WHEN event_type = 'conversion' THEN 1 END) as conversions,
+                        COALESCE(SUM(CASE WHEN event_type = 'conversion' THEN order_value END), 0) as revenue
+                    FROM {$events_table}
+                    WHERE DATE(created_at) BETWEEN %s AND %s AND source_type = 'campaign' AND source_id = %d
+                    GROUP BY page_url
+                    ORDER BY conversions DESC
+                    LIMIT %d",
+                    $date_from,
+                    $date_to,
+                    $campaign_id,
+                    $limit
+                ),
+                ARRAY_A
+            );
         }
 
-        $sql = "SELECT 
-                page_url,
-                COUNT(CASE WHEN event_type = 'impression' THEN 1 END) as impressions,
-                COUNT(CASE WHEN event_type = 'conversion' THEN 1 END) as conversions,
-                COALESCE(SUM(CASE WHEN event_type = 'conversion' THEN order_value END), 0) as revenue
-            FROM {$this->events_table}
-            WHERE DATE(created_at) BETWEEN %s AND %s {$campaign_where}
-            GROUP BY page_url
-            ORDER BY conversions DESC
-            LIMIT %d";
-        return $wpdb->get_results( $wpdb->prepare( $sql, $date_from, $date_to, $limit ), ARRAY_A );
+        return $wpdb->get_results(
+            $wpdb->prepare(
+                "SELECT 
+                    page_url,
+                    COUNT(CASE WHEN event_type = 'impression' THEN 1 END) as impressions,
+                    COUNT(CASE WHEN event_type = 'conversion' THEN 1 END) as conversions,
+                    COALESCE(SUM(CASE WHEN event_type = 'conversion' THEN order_value END), 0) as revenue
+                FROM {$events_table}
+                WHERE DATE(created_at) BETWEEN %s AND %s
+                GROUP BY page_url
+                ORDER BY conversions DESC
+                LIMIT %d",
+                $date_from,
+                $date_to,
+                $limit
+            ),
+            ARRAY_A
+        );
     }
 
     /**
@@ -391,11 +545,12 @@ class CRO_Analytics {
      */
     public function get_campaigns_list() {
         global $wpdb;
-        $campaigns_exists = $wpdb->get_var( $wpdb->prepare( "SHOW TABLES LIKE %s", $this->campaigns_table ) );
+        $campaigns_table = esc_sql( $this->campaigns_table );
+        $campaigns_exists = $wpdb->get_var( $wpdb->prepare( "SHOW TABLES LIKE %s", $campaigns_table ) );
         if ( ! $campaigns_exists ) {
             return array();
         }
-        $rows = $wpdb->get_results( "SELECT id, name FROM {$this->campaigns_table} ORDER BY name ASC", ARRAY_A );
+        $rows = $wpdb->get_results( "SELECT id, name FROM {$campaigns_table} ORDER BY name ASC", ARRAY_A );
         $list = array();
         foreach ( $rows as $row ) {
             $list[ (int) $row['id'] ] = $row['name'];
@@ -414,31 +569,57 @@ class CRO_Analytics {
     public function export_events_for_csv( $date_from, $date_to, $campaign_id = null ) {
         global $wpdb;
 
-        $events_exists = $wpdb->get_var( $wpdb->prepare( "SHOW TABLES LIKE %s", $this->events_table ) );
+        $events_table = esc_sql( $this->events_table );
+        $events_exists = $wpdb->get_var( $wpdb->prepare( "SHOW TABLES LIKE %s", $events_table ) );
         if ( ! $events_exists ) {
             return array();
         }
 
-        $campaign_where = '';
-        if ( $campaign_id !== null && $campaign_id > 0 ) {
-            $campaign_id   = absint( $campaign_id );
-            $campaign_where = $wpdb->prepare( " AND e.source_type = 'campaign' AND e.source_id = %d", $campaign_id );
+        $campaign_id = ( $campaign_id !== null && $campaign_id > 0 ) ? absint( $campaign_id ) : null;
+        if ( $campaign_id ) {
+            return $wpdb->get_results(
+                $wpdb->prepare(
+                    "SELECT 
+                        e.created_at,
+                        e.event_type,
+                        e.source_type,
+                        e.source_id,
+                        e.session_id,
+                        e.user_id,
+                        e.page_type,
+                        e.page_url,
+                        e.metadata
+                    FROM {$events_table} e
+                    WHERE DATE(e.created_at) BETWEEN %s AND %s AND e.source_type = 'campaign' AND e.source_id = %d
+                    ORDER BY e.created_at ASC",
+                    $date_from,
+                    $date_to,
+                    $campaign_id
+                ),
+                ARRAY_A
+            );
         }
 
-        $sql = "SELECT 
-                e.created_at,
-                e.event_type,
-                e.source_type,
-                e.source_id,
-                e.session_id,
-                e.user_id,
-                e.page_type,
-                e.page_url,
-                e.metadata
-            FROM {$this->events_table} e
-            WHERE DATE(e.created_at) BETWEEN %s AND %s {$campaign_where}
-            ORDER BY e.created_at ASC";
-        return $wpdb->get_results( $wpdb->prepare( $sql, $date_from, $date_to ), ARRAY_A );
+        return $wpdb->get_results(
+            $wpdb->prepare(
+                "SELECT 
+                    e.created_at,
+                    e.event_type,
+                    e.source_type,
+                    e.source_id,
+                    e.session_id,
+                    e.user_id,
+                    e.page_type,
+                    e.page_url,
+                    e.metadata
+                FROM {$events_table} e
+                WHERE DATE(e.created_at) BETWEEN %s AND %s
+                ORDER BY e.created_at ASC",
+                $date_from,
+                $date_to
+            ),
+            ARRAY_A
+        );
     }
 
     /**
@@ -451,9 +632,9 @@ class CRO_Analytics {
     public function get_daily_summary_for_export( $date_from, $date_to ) {
         global $wpdb;
 
-        $events_table = $this->events_table;
+        $events_table = esc_sql( $this->events_table );
         $events_ok    = $wpdb->get_var( $wpdb->prepare( "SHOW TABLES LIKE %s", $events_table ) ) === $events_table;
-        $offer_logs   = $wpdb->prefix . 'cro_offer_logs';
+        $offer_logs   = esc_sql( $wpdb->prefix . 'cro_offer_logs' );
         $logs_ok      = $wpdb->get_var( $wpdb->prepare( "SHOW TABLES LIKE %s", $offer_logs ) ) === $offer_logs;
 
         $days = array();
@@ -508,12 +689,25 @@ class CRO_Analytics {
 
         if ( $logs_ok ) {
             $has_action = $wpdb->get_var( "SHOW COLUMNS FROM {$offer_logs} LIKE 'action'" );
-            $action_where = $has_action ? " AND action = 'applied'" : '';
-            $apply = $wpdb->get_results( $wpdb->prepare(
-                "SELECT DATE(created_at) AS d, COUNT(*) AS cnt FROM {$offer_logs} WHERE DATE(created_at) BETWEEN %s AND %s {$action_where} GROUP BY DATE(created_at)",
-                $date_from,
-                $date_to
-            ), ARRAY_A );
+            if ( $has_action ) {
+                $apply = $wpdb->get_results(
+                    $wpdb->prepare(
+                        "SELECT DATE(created_at) AS d, COUNT(*) AS cnt FROM {$offer_logs} WHERE DATE(created_at) BETWEEN %s AND %s AND action = 'applied' GROUP BY DATE(created_at)",
+                        $date_from,
+                        $date_to
+                    ),
+                    ARRAY_A
+                );
+            } else {
+                $apply = $wpdb->get_results(
+                    $wpdb->prepare(
+                        "SELECT DATE(created_at) AS d, COUNT(*) AS cnt FROM {$offer_logs} WHERE DATE(created_at) BETWEEN %s AND %s GROUP BY DATE(created_at)",
+                        $date_from,
+                        $date_to
+                    ),
+                    ARRAY_A
+                );
+            }
             foreach ( is_array( $apply ) ? $apply : array() as $row ) {
                 $d = $row['d'] ?? '';
                 if ( isset( $days[ $d ] ) ) {
@@ -546,22 +740,24 @@ class CRO_Analytics {
     public static function get_recent_events( $limit = 10 ) {
         global $wpdb;
         $analytics = new self();
-        $events_table = $analytics->events_table;
-        $campaigns_table = $analytics->campaigns_table;
+        $events_table = esc_sql( $analytics->events_table );
+        $campaigns_table = esc_sql( $analytics->campaigns_table );
         $table_exists = $wpdb->get_var( $wpdb->prepare( "SHOW TABLES LIKE %s", $events_table ) );
         if ( ! $table_exists ) {
             return array();
         }
         $limit = max( 1, min( 50, (int) $limit ) );
-        $sql = $wpdb->prepare(
-            "SELECT e.created_at, e.event_type, e.source_type, c.name AS campaign_name, e.order_value AS revenue
-             FROM {$events_table} e
-             LEFT JOIN {$campaigns_table} c ON e.source_type = 'campaign' AND e.source_id = c.id
-             ORDER BY e.created_at DESC
-             LIMIT %d",
-            $limit
+        $rows = $wpdb->get_results(
+            $wpdb->prepare(
+                "SELECT e.created_at, e.event_type, e.source_type, c.name AS campaign_name, e.order_value AS revenue
+                 FROM {$events_table} e
+                 LEFT JOIN {$campaigns_table} c ON e.source_type = 'campaign' AND e.source_id = c.id
+                 ORDER BY e.created_at DESC
+                 LIMIT %d",
+                $limit
+            ),
+            ARRAY_A
         );
-        $rows = $wpdb->get_results( $sql, ARRAY_A );
         return is_array( $rows ) ? $rows : array();
     }
 }

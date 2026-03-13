@@ -191,19 +191,7 @@ class CRO_Loader {
 	 * Define the locale for this plugin for internationalization.
 	 */
 	private function set_locale() {
-		// Load translations at init priority 0 so they are available before any i18n (WP 6.7+)
-		add_action( 'init', array( $this, 'load_textdomain' ), 0 );
-	}
-
-	/**
-	 * Load plugin textdomain.
-	 */
-	public function load_textdomain() {
-		load_plugin_textdomain(
-			'meyvora-convert',
-			false,
-			dirname( CRO_PLUGIN_BASENAME ) . '/languages/'
-		);
+		// Translations are loaded automatically by WordPress from the plugin header Text Domain.
 	}
 
 	/**

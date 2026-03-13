@@ -176,19 +176,19 @@ class CRO_Offer_Presenter {
 
 		$inc_cats = isset( $c['include_categories'] ) && is_array( $c['include_categories'] ) ? array_filter( array_map( 'absint', $c['include_categories'] ) ) : array();
 		if ( ! empty( $inc_cats ) ) {
-			$parts[] = sprintf( __( 'Categories only (%d)', 'meyvora-convert' ), count( $inc_cats ) );
+			$parts[] = sprintf( /* translators: %d is the number of included product categories. */ __( 'Categories only (%d)', 'meyvora-convert' ), count( $inc_cats ) );
 		}
 		$exc_cats = isset( $c['exclude_categories'] ) && is_array( $c['exclude_categories'] ) ? array_filter( array_map( 'absint', $c['exclude_categories'] ) ) : array();
 		if ( ! empty( $exc_cats ) ) {
-			$parts[] = sprintf( __( 'Excl. categories (%d)', 'meyvora-convert' ), count( $exc_cats ) );
+			$parts[] = sprintf( /* translators: %d is the number of excluded product categories. */ __( 'Excl. categories (%d)', 'meyvora-convert' ), count( $exc_cats ) );
 		}
 		$inc_prod = isset( $c['include_products'] ) && is_array( $c['include_products'] ) ? array_filter( array_map( 'absint', $c['include_products'] ) ) : array();
 		if ( ! empty( $inc_prod ) ) {
-			$parts[] = sprintf( __( 'Products only (%d)', 'meyvora-convert' ), count( $inc_prod ) );
+			$parts[] = sprintf( /* translators: %d is the number of included products. */ __( 'Products only (%d)', 'meyvora-convert' ), count( $inc_prod ) );
 		}
 		$exc_prod = isset( $c['exclude_products'] ) && is_array( $c['exclude_products'] ) ? array_filter( array_map( 'absint', $c['exclude_products'] ) ) : array();
 		if ( ! empty( $exc_prod ) ) {
-			$parts[] = sprintf( __( 'Excl. products (%d)', 'meyvora-convert' ), count( $exc_prod ) );
+			$parts[] = sprintf( /* translators: %d is the number of excluded products. */ __( 'Excl. products (%d)', 'meyvora-convert' ), count( $exc_prod ) );
 		}
 		if ( ! empty( $c['exclude_sale_items'] ) ) {
 			$parts[] = __( 'No sale items', 'meyvora-convert' );
@@ -196,11 +196,11 @@ class CRO_Offer_Presenter {
 		$min_qty_cat = isset( $c['min_qty_for_category'] ) && is_array( $c['min_qty_for_category'] ) ? $c['min_qty_for_category'] : array();
 		if ( ! empty( $min_qty_cat ) ) {
 			$n = count( $min_qty_cat );
-			$parts[] = sprintf( _n( 'Min qty for category (%d)', 'Min qty for categories (%d)', $n, 'meyvora-convert' ), $n );
+			$parts[] = sprintf( /* translators: %d is the number of category rules. */ _n( 'Min qty for category (%d)', 'Min qty for categories (%d)', $n, 'meyvora-convert' ), $n );
 		}
 		$cart_cat = isset( $c['cart_contains_category'] ) && is_array( $c['cart_contains_category'] ) ? array_filter( array_map( 'absint', $c['cart_contains_category'] ) ) : array();
 		if ( ! empty( $cart_cat ) ) {
-			$parts[] = sprintf( __( 'Cart has category (%d)', 'meyvora-convert' ), count( $cart_cat ) );
+			$parts[] = sprintf( /* translators: %d is the number of required cart categories. */ __( 'Cart has category (%d)', 'meyvora-convert' ), count( $cart_cat ) );
 		}
 
 		if ( empty( $parts ) ) {
@@ -263,10 +263,10 @@ class CRO_Offer_Presenter {
 		$apply_cats = isset( $offer['apply_to_categories'] ) && is_array( $offer['apply_to_categories'] ) ? array_filter( array_map( 'absint', $offer['apply_to_categories'] ) ) : array();
 		$apply_prod = isset( $offer['apply_to_products'] ) && is_array( $offer['apply_to_products'] ) ? array_filter( array_map( 'absint', $offer['apply_to_products'] ) ) : array();
 		if ( ! empty( $apply_cats ) ) {
-			$extra[] = sprintf( _n( 'Applies to %d category', 'Applies to %d categories', count( $apply_cats ), 'meyvora-convert' ), count( $apply_cats ) );
+			$extra[] = sprintf( /* translators: %d is the number of categories the offer applies to. */ _n( 'Applies to %d category', 'Applies to %d categories', count( $apply_cats ), 'meyvora-convert' ), count( $apply_cats ) );
 		}
 		if ( ! empty( $apply_prod ) ) {
-			$extra[] = sprintf( _n( 'Applies to %d product', 'Applies to %d products', count( $apply_prod ), 'meyvora-convert' ), count( $apply_prod ) );
+			$extra[] = sprintf( /* translators: %d is the number of products the offer applies to. */ _n( 'Applies to %d product', 'Applies to %d products', count( $apply_prod ), 'meyvora-convert' ), count( $apply_prod ) );
 		}
 
 		if ( ! empty( $extra ) ) {

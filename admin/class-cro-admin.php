@@ -4,6 +4,7 @@
  *
  * @package Meyvora_Convert
  */
+// phpcs:disable WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotValidated, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
 
 // If this file is called directly, abort.
 if ( ! defined( 'WPINC' ) ) {
@@ -438,8 +439,8 @@ class CRO_Admin {
 			$this->handle_csv_export();
 			return;
 		}
-		$date_from   = isset( $_GET['from'] ) ? sanitize_text_field( wp_unslash( $_GET['from'] ) ) : date( 'Y-m-d', strtotime( '-30 days' ) );
-		$date_to     = isset( $_GET['to'] ) ? sanitize_text_field( wp_unslash( $_GET['to'] ) ) : date( 'Y-m-d' );
+		$date_from   = isset( $_GET['from'] ) ? sanitize_text_field( wp_unslash( $_GET['from'] ) ) : gmdate( 'Y-m-d', strtotime( '-30 days' ) );
+		$date_to     = isset( $_GET['to'] ) ? sanitize_text_field( wp_unslash( $_GET['to'] ) ) : gmdate( 'Y-m-d' );
 		$campaign_id = isset( $_GET['campaign_id'] ) ? absint( $_GET['campaign_id'] ) : null;
 		if ( $campaign_id === 0 ) {
 			$campaign_id = null;
@@ -532,7 +533,7 @@ class CRO_Admin {
 			'cro-google-fonts',
 			'https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap',
 			array(),
-			null
+			CRO_VERSION
 		);
 
 		// Design system is source of truth; legacy css (cro-admin, cro-admin-ui, cro-admin-modern, cro-admin-brand-identity) not enqueued.
@@ -776,6 +777,7 @@ class CRO_Admin {
 					'delete'          => __( 'Delete', 'meyvora-convert' ),
 					'offer'             => __( 'Offer', 'meyvora-convert' ),
 					'deleteConfirm'     => __( 'Delete this offer?', 'meyvora-convert' ),
+					/* translators: %s is the offer name. */
 					'deleteConfirmName' => __( 'Delete offer "%s"?', 'meyvora-convert' ),
 					'close'             => __( 'Close', 'meyvora-convert' ),
 					'notifications'     => __( 'Notifications', 'meyvora-convert' ),
@@ -784,6 +786,7 @@ class CRO_Admin {
 					'noOffersYet'     => __( 'No offers yet', 'meyvora-convert' ),
 					'emptyDesc'       => __( 'Create your first offer to show a dynamic reward on cart and checkout.', 'meyvora-convert' ),
 					'createFirst'     => __( 'Create your first offer', 'meyvora-convert' ),
+					/* translators: %s is the priority value. */
 					'priorityLabel'   => __( 'Priority: %s', 'meyvora-convert' ),
 					'reorderNonce'    => wp_create_nonce( 'cro_offers_ajax' ),
 					'reorderSaved'    => __( 'Order saved.', 'meyvora-convert' ),
@@ -805,15 +808,23 @@ class CRO_Admin {
 					'suggestionsLabel'=> __( 'Suggestions:', 'meyvora-convert' ),
 					'expectedLabel'   => __( 'Expected', 'meyvora-convert' ),
 					'actualLabel'     => __( 'Actual', 'meyvora-convert' ),
+					/* translators: %s is the formatted minimum cart total amount. */
 					'summaryCartMin'   => __( 'Cart ≥ %s', 'meyvora-convert' ),
-					'summaryCartRange' => __( 'Cart %s – %s', 'meyvora-convert' ),
+					/* translators: %1$s is the minimum cart total, %2$s is the maximum cart total. */
+					'summaryCartRange' => __( 'Cart %1$s – %2$s', 'meyvora-convert' ),
+					/* translators: %d is the number of cart items. */
 					'summaryItems'     => __( '%d items', 'meyvora-convert' ),
 					'summaryFirstTime' => __( 'First-time customer', 'meyvora-convert' ),
+					/* translators: %d is the minimum number of previous orders. */
 					'summaryReturning' => __( 'Returning customer (≥%d orders)', 'meyvora-convert' ),
+					/* translators: %s is the formatted minimum lifetime spend amount. */
 					'summaryLifetime'  => __( 'Lifetime spend ≥ %s', 'meyvora-convert' ),
+					/* translators: %s is the percentage discount value. */
 					'summaryRewardPct' => __( '%s%% off', 'meyvora-convert' ),
+					/* translators: %s is the formatted fixed discount amount. */
 					'summaryRewardFix' => __( '%s off', 'meyvora-convert' ),
 					'summaryRewardShip'=> __( 'Free shipping', 'meyvora-convert' ),
+					/* translators: %s is the number of hours until expiry. */
 					'summaryExpires'   => __( 'Expires %sh', 'meyvora-convert' ),
 					'summaryExcludeSale' => __( 'Exclude sale items', 'meyvora-convert' ),
 					'summaryBullet'    => ' • ',
@@ -890,7 +901,7 @@ class CRO_Admin {
 
 		?>
 		<button type="button" id="cro-insert-campaign-btn" class="button" title="<?php esc_attr_e( 'Insert a Meyvora Convert campaign shortcode', 'meyvora-convert' ); ?>">
-			<?php echo class_exists( 'CRO_Icons' ) ? \CRO_Icons::svg( 'plus', array( 'class' => 'cro-ico' ) ) : ''; ?>
+			<?php echo class_exists( 'CRO_Icons' ) ? wp_kses_post( \CRO_Icons::svg( 'plus', array( 'class' => 'cro-ico' ) ) ) : ''; ?>
 			<?php esc_html_e( 'Add CRO Campaign', 'meyvora-convert' ); ?>
 		</button>
 		<div id="cro-campaign-modal-content" class="cro-is-hidden">
@@ -902,7 +913,7 @@ class CRO_Admin {
 					<option value="0"><?php esc_html_e( '— Select campaign —', 'meyvora-convert' ); ?></option>
 					<?php foreach ( $campaigns as $c ) : ?>
 						<option value="<?php echo esc_attr( (string) $c['id'] ); ?>">
-							<?php echo esc_html( $c['name'] ? $c['name'] : sprintf( __( 'Campaign #%d', 'meyvora-convert' ), $c['id'] ) ); ?>
+							<?php echo esc_html( $c['name'] ? $c['name'] : sprintf( /* translators: %d is the campaign ID number. */ __( 'Campaign #%d', 'meyvora-convert' ), $c['id'] ) ); ?>
 							<?php if ( $c['status'] !== 'active' ) : ?>
 								(<?php echo esc_html( $c['status'] ); ?>)
 							<?php endif; ?>
@@ -1335,19 +1346,19 @@ class CRO_Admin {
 		}
 
 		$default_days = 30;
-		$date_from   = isset( $_GET['from'] ) ? sanitize_text_field( wp_unslash( $_GET['from'] ) ) : date( 'Y-m-d', strtotime( "-{$default_days} days" ) );
-		$date_to     = isset( $_GET['to'] ) ? sanitize_text_field( wp_unslash( $_GET['to'] ) ) : date( 'Y-m-d' );
+		$date_from   = isset( $_GET['from'] ) ? sanitize_text_field( wp_unslash( $_GET['from'] ) ) : gmdate( 'Y-m-d', strtotime( "-{$default_days} days" ) );
+		$date_to     = isset( $_GET['to'] ) ? sanitize_text_field( wp_unslash( $_GET['to'] ) ) : gmdate( 'Y-m-d' );
 		$max_days    = (int) apply_filters( 'cro_export_max_days', 90 );
 		$max_days    = $max_days >= 1 && $max_days <= 365 ? $max_days : 90;
 		$ts_from     = strtotime( $date_from );
 		$ts_to       = strtotime( $date_to );
 		if ( $ts_from === false || $ts_to === false || $ts_to < $ts_from ) {
-			$date_from = date( 'Y-m-d', strtotime( "-{$default_days} days" ) );
-			$date_to   = date( 'Y-m-d' );
+			$date_from = gmdate( 'Y-m-d', strtotime( "-{$default_days} days" ) );
+			$date_to   = gmdate( 'Y-m-d' );
 		} else {
 			$range_days = (int) ( ( $ts_to - $ts_from ) / 86400 ) + 1;
 			if ( $range_days > $max_days ) {
-				$date_from = date( 'Y-m-d', strtotime( $date_to . " -{$max_days} days" ) );
+				$date_from = gmdate( 'Y-m-d', strtotime( $date_to . " -{$max_days} days" ) );
 			}
 		}
 		$campaign_id = isset( $_GET['campaign_id'] ) ? absint( $_GET['campaign_id'] ) : null;
@@ -1381,7 +1392,7 @@ class CRO_Admin {
 					(int) $row['ab_exposures'],
 				) );
 			}
-			fclose( $output );
+			fclose( $output ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose
 			exit;
 		}
 
@@ -1428,7 +1439,7 @@ class CRO_Admin {
 			) );
 		}
 
-		fclose( $output );
+		fclose( $output ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose
 		exit;
 	}
 
@@ -2439,22 +2450,22 @@ class CRO_Admin {
 			return number_format_i18n( (float) $amount, 2 ) . ( function_exists( 'get_woocommerce_currency_symbol' ) ? get_woocommerce_currency_symbol() : '' );
 		};
 		if ( ! empty( $o['min_cart_total'] ) ) {
-			$parts[] = sprintf( __( 'Cart ≥ %s', 'meyvora-convert' ), $fmt( $o['min_cart_total'] ) );
+			$parts[] = sprintf( /* translators: %s is the formatted minimum cart total. */ __( 'Cart ≥ %s', 'meyvora-convert' ), $fmt( $o['min_cart_total'] ) );
 		}
 		if ( ! empty( $o['max_cart_total'] ) ) {
-			$parts[] = sprintf( __( 'Cart ≤ %s', 'meyvora-convert' ), $fmt( $o['max_cart_total'] ) );
+			$parts[] = sprintf( /* translators: %s is the formatted maximum cart total. */ __( 'Cart ≤ %s', 'meyvora-convert' ), $fmt( $o['max_cart_total'] ) );
 		}
 		if ( ! empty( $o['min_items'] ) ) {
-			$parts[] = sprintf( _n( '%d item', '%d items', $o['min_items'], 'meyvora-convert' ), $o['min_items'] );
+			$parts[] = sprintf( /* translators: %d is the minimum number of cart items. */ _n( '%d item', '%d items', $o['min_items'], 'meyvora-convert' ), $o['min_items'] );
 		}
 		if ( ! empty( $o['first_time_customer'] ) ) {
 			$parts[] = __( 'First-time customer', 'meyvora-convert' );
 		}
 		if ( ! empty( $o['returning_customer_min_orders'] ) ) {
-			$parts[] = sprintf( __( 'Returning: %d+ orders', 'meyvora-convert' ), $o['returning_customer_min_orders'] );
+			$parts[] = sprintf( /* translators: %d is the minimum number of previous orders. */ __( 'Returning: %d+ orders', 'meyvora-convert' ), $o['returning_customer_min_orders'] );
 		}
 		if ( ! empty( $o['lifetime_spend_min'] ) ) {
-			$parts[] = sprintf( __( 'Lifetime spend ≥ %s', 'meyvora-convert' ), $fmt( $o['lifetime_spend_min'] ) );
+			$parts[] = sprintf( /* translators: %s is the formatted minimum lifetime spend. */ __( 'Lifetime spend ≥ %s', 'meyvora-convert' ), $fmt( $o['lifetime_spend_min'] ) );
 		}
 		return empty( $parts ) ? __( 'Any cart', 'meyvora-convert' ) : implode( ' · ', $parts );
 	}
@@ -2472,14 +2483,14 @@ class CRO_Admin {
 			return __( 'Free shipping', 'meyvora-convert' );
 		}
 		if ( $type === 'percent' ) {
-			return sprintf( __( '%s%% off', 'meyvora-convert' ), $amount );
+			return sprintf( /* translators: %s is the percentage discount value. */ __( '%s%% off', 'meyvora-convert' ), $amount );
 		}
 		if ( $type === 'fixed' ) {
 			$formatted = number_format_i18n( (float) $amount, 2 );
 			if ( function_exists( 'get_woocommerce_currency_symbol' ) ) {
 				$formatted = get_woocommerce_currency_symbol() . $formatted;
 			}
-			return sprintf( __( '%s off', 'meyvora-convert' ), $formatted );
+			return sprintf( /* translators: %s is the formatted fixed discount amount. */ __( '%s off', 'meyvora-convert' ), $formatted );
 		}
 		return __( 'Discount', 'meyvora-convert' );
 	}

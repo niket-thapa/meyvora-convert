@@ -1,16 +1,16 @@
-=== Meyvora Convert ===
+=== Meyvora Convert – Conversion Rate Optimizer for WooCommerce ===
 
 Contributors: niket-thapa
-Tags: woocommerce, conversion, popup, exit intent, abandoned cart, sticky cart, shipping bar, trust badges, A/B testing, analytics
+Tags: woocommerce, conversion, popup, exit intent, abandoned cart
 Requires at least: 6.2
-Tested up to: 6.7
+Tested up to: 6.9
 Requires PHP: 7.4
 Stable tag: 1.0.0
 Requires Plugins: woocommerce
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Lightweight conversion rate optimization toolkit for WooCommerce: exit intent popups, sticky add-to-cart, free shipping bar, cart and checkout optimizers, dynamic offers, and trust elements. Works with block-based and classic cart/checkout.
+Conversion rate optimization for WooCommerce: exit intent popups, sticky cart, shipping bar, dynamic offers, A/B testing, and analytics.
 
 == Description ==
 

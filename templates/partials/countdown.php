@@ -13,6 +13,6 @@ $inline  = isset( $inline ) && $inline;
      data-minutes="<?php echo esc_attr( $minutes ); ?>">
     <span class="cro-popup__countdown-label"><?php esc_html_e( 'Offer ends in', 'meyvora-convert' ); ?></span>
     <span class="cro-popup__countdown-timer">
-        <span class="cro-countdown-minutes"><?php echo str_pad( $minutes, 2, '0', STR_PAD_LEFT ); ?></span>:<span class="cro-countdown-seconds">00</span>
+        <span class="cro-countdown-minutes"><?php echo esc_html( str_pad( $minutes, 2, '0', STR_PAD_LEFT ) ); ?></span>:<span class="cro-countdown-seconds">00</span>
     </span>
 </div>

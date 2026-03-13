@@ -234,7 +234,7 @@ class CRO_Security {
 			fputcsv( $output, $sanitized_row );
 		}
 
-		fclose( $output );
+		fclose( $output ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose
 		exit;
 	}
 }

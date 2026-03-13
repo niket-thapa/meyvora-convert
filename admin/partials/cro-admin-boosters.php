@@ -97,7 +97,8 @@ if ( function_exists( 'WC_Shipping_Zones' ) && class_exists( 'WC_Shipping_Zones'
 		<div class="cro-settings-section">
 			<div class="cro-section-header">
 				<h2>
-					<?php echo CRO_Icons::svg( 'shopping-cart', array( 'class' => 'cro-ico' ) ); ?>
+					<?php echo wp_kses_post( CRO_Icons::svg( 'shopping-cart', array( 'class' => 'cro-ico' ) ) ); ?>
+
 					<?php esc_html_e( 'Sticky Add-to-Cart Bar', 'meyvora-convert' ); ?>
 				</h2>
 				<label class="cro-toggle">
@@ -205,7 +206,8 @@ if ( function_exists( 'WC_Shipping_Zones' ) && class_exists( 'WC_Shipping_Zones'
 		<div class="cro-settings-section">
 			<div class="cro-section-header">
 				<h2>
-					<?php echo CRO_Icons::svg( 'truck', array( 'class' => 'cro-ico' ) ); ?>
+					<?php echo wp_kses_post( CRO_Icons::svg( 'truck', array( 'class' => 'cro-ico' ) ) ); ?>
+
 					<?php esc_html_e( 'Free Shipping Progress Bar', 'meyvora-convert' ); ?>
 				</h2>
 				<label class="cro-toggle">
@@ -343,7 +345,8 @@ if ( function_exists( 'WC_Shipping_Zones' ) && class_exists( 'WC_Shipping_Zones'
 		<div class="cro-settings-section">
 			<div class="cro-section-header">
 				<h2>
-					<?php echo CRO_Icons::svg( 'alert', array( 'class' => 'cro-ico' ) ); ?>
+					<?php echo wp_kses_post( CRO_Icons::svg( 'alert', array( 'class' => 'cro-ico' ) ) ); ?>
+
 					<?php esc_html_e( 'Low Stock Urgency', 'meyvora-convert' ); ?>
 				</h2>
 			</div>
@@ -391,7 +394,8 @@ if ( function_exists( 'WC_Shipping_Zones' ) && class_exists( 'WC_Shipping_Zones'
 		<div class="cro-settings-section">
 			<div class="cro-section-header">
 				<h2>
-					<?php echo CRO_Icons::svg( 'shield', array( 'class' => 'cro-ico' ) ); ?>
+					<?php echo wp_kses_post( CRO_Icons::svg( 'shield', array( 'class' => 'cro-ico' ) ) ); ?>
+
 					<?php esc_html_e( 'Trust Badges', 'meyvora-convert' ); ?>
 				</h2>
 				<label class="cro-toggle">

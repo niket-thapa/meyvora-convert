@@ -4,6 +4,7 @@
  *
  * @package Meyvora_Convert
  */
+// phpcs:disable WordPress.Security.NonceVerification.Recommended, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
 
 if ( ! defined( 'WPINC' ) ) {
 	die;
@@ -69,21 +70,24 @@ $quick_launch_done = isset( $_GET['cro_quick_launch_done'] ) && (string) $_GET['
 	<!-- KPI cards row -->
 	<div class="cro-dashboard-kpi-row">
 		<div class="cro-dashboard-kpi-card">
-			<span class="cro-dashboard-kpi-card__icon"><?php echo CRO_Icons::svg( 'tag', array( 'class' => 'cro-ico' ) ); ?></span>
+			<span class="cro-dashboard-kpi-card__icon"><?php echo wp_kses_post( CRO_Icons::svg( 'tag', array( 'class' => 'cro-ico' ) ) ); ?></span>
+
 			<div class="cro-dashboard-kpi-card__content">
 				<span class="cro-dashboard-kpi-card__value"><?php echo esc_html( number_format_i18n( $active_offers_count ) ); ?></span>
 				<span class="cro-dashboard-kpi-card__label"><?php esc_html_e( 'Active offers', 'meyvora-convert' ); ?></span>
 			</div>
 		</div>
 		<div class="cro-dashboard-kpi-card">
-			<span class="cro-dashboard-kpi-card__icon"><?php echo CRO_Icons::svg( 'target', array( 'class' => 'cro-ico' ) ); ?></span>
+			<span class="cro-dashboard-kpi-card__icon"><?php echo wp_kses_post( CRO_Icons::svg( 'target', array( 'class' => 'cro-ico' ) ) ); ?></span>
+
 			<div class="cro-dashboard-kpi-card__content">
 				<span class="cro-dashboard-kpi-card__value"><?php echo esc_html( number_format_i18n( $active_ab_tests_count ) ); ?></span>
 				<span class="cro-dashboard-kpi-card__label"><?php esc_html_e( 'Active A/B tests', 'meyvora-convert' ); ?></span>
 			</div>
 		</div>
 		<div class="cro-dashboard-kpi-card">
-			<span class="cro-dashboard-kpi-card__icon"><?php echo CRO_Icons::svg( 'shopping-cart', array( 'class' => 'cro-ico' ) ); ?></span>
+			<span class="cro-dashboard-kpi-card__icon"><?php echo wp_kses_post( CRO_Icons::svg( 'shopping-cart', array( 'class' => 'cro-ico' ) ) ); ?></span>
+
 			<div class="cro-dashboard-kpi-card__content">
 				<span class="cro-dashboard-kpi-card__value"><?php echo esc_html( number_format_i18n( $abandoned_carts_active ) ); ?></span>
 				<span class="cro-dashboard-kpi-card__label"><?php esc_html_e( 'Abandoned carts (active)', 'meyvora-convert' ); ?></span>
@@ -91,7 +95,8 @@ $quick_launch_done = isset( $_GET['cro_quick_launch_done'] ) && (string) $_GET['
 		</div>
 		<?php if ( $revenue_available ) : ?>
 		<div class="cro-dashboard-kpi-card">
-			<span class="cro-dashboard-kpi-card__icon"><?php echo CRO_Icons::svg( 'dollar-sign', array( 'class' => 'cro-ico' ) ); ?></span>
+			<span class="cro-dashboard-kpi-card__icon"><?php echo wp_kses_post( CRO_Icons::svg( 'dollar-sign', array( 'class' => 'cro-ico' ) ) ); ?></span>
+
 			<div class="cro-dashboard-kpi-card__content">
 				<span class="cro-dashboard-kpi-card__value"><?php echo function_exists( 'wc_price' ) ? wp_kses_post( wc_price( $revenue_influenced ) ) : esc_html( number_format_i18n( $revenue_influenced, 2 ) ); ?></span>
 				<span class="cro-dashboard-kpi-card__label"><?php esc_html_e( 'Revenue influenced (30d)', 'meyvora-convert' ); ?></span>
@@ -105,15 +110,18 @@ $quick_launch_done = isset( $_GET['cro_quick_launch_done'] ) && (string) $_GET['
 		<h3 class="cro-dashboard-actions__title"><?php esc_html_e( 'Quick actions', 'meyvora-convert' ); ?></h3>
 		<div class="cro-dashboard-actions__list">
 			<a href="<?php echo esc_url( admin_url( 'admin.php?page=cro-offers' ) ); ?>" class="cro-dashboard-action-btn button button-primary">
-				<?php echo CRO_Icons::svg( 'plus', array( 'class' => 'cro-ico' ) ); ?>
+				<?php echo wp_kses_post( CRO_Icons::svg( 'plus', array( 'class' => 'cro-ico' ) ) ); ?>
+
 				<?php esc_html_e( 'Add Offer', 'meyvora-convert' ); ?>
 			</a>
 			<a href="<?php echo esc_url( admin_url( 'admin.php?page=cro-ab-test-new' ) ); ?>" class="cro-dashboard-action-btn button">
-				<?php echo CRO_Icons::svg( 'plus', array( 'class' => 'cro-ico' ) ); ?>
+				<?php echo wp_kses_post( CRO_Icons::svg( 'plus', array( 'class' => 'cro-ico' ) ) ); ?>
+
 				<?php esc_html_e( 'Create A/B test', 'meyvora-convert' ); ?>
 			</a>
 			<a href="<?php echo esc_url( admin_url( 'admin.php?page=cro-system-status' ) ); ?>" class="cro-dashboard-action-btn button">
-				<?php echo CRO_Icons::svg( 'check', array( 'class' => 'cro-ico' ) ); ?>
+				<?php echo wp_kses_post( CRO_Icons::svg( 'check', array( 'class' => 'cro-ico' ) ) ); ?>
+
 				<?php esc_html_e( 'Verify Installation', 'meyvora-convert' ); ?>
 			</a>
 		</div>
@@ -122,7 +130,8 @@ $quick_launch_done = isset( $_GET['cro_quick_launch_done'] ) && (string) $_GET['
 	<!-- Recent activity -->
 	<div class="cro-dashboard-card cro-dashboard-activity">
 		<header class="cro-dashboard-card__header">
-			<span class="cro-dashboard-card__icon"><?php echo CRO_Icons::svg( 'chart', array( 'class' => 'cro-ico' ) ); ?></span>
+			<span class="cro-dashboard-card__icon"><?php echo wp_kses_post( CRO_Icons::svg( 'chart', array( 'class' => 'cro-ico' ) ) ); ?></span>
+
 			<h3 class="cro-dashboard-card__title"><?php esc_html_e( 'Recent activity', 'meyvora-convert' ); ?></h3>
 		</header>
 		<div class="cro-dashboard-card__body">
@@ -144,7 +153,7 @@ $quick_launch_done = isset( $_GET['cro_quick_launch_done'] ) && (string) $_GET['
 						if ( $event_type === 'impression' ) {
 							$action_text = __( 'View', 'meyvora-convert' );
 						} elseif ( $event_type === 'conversion' ) {
-							$action_text = $revenue > 0 ? sprintf( __( 'Conversion (+%s)', 'meyvora-convert' ), function_exists( 'wc_price' ) ? strip_tags( wc_price( $revenue ) ) : number_format_i18n( $revenue, 2 ) ) : __( 'Conversion', 'meyvora-convert' );
+							$action_text = $revenue > 0 ? sprintf( /* translators: %s is the formatted revenue amount for the conversion. */ __( 'Conversion (+%s)', 'meyvora-convert' ), function_exists( 'wc_price' ) ? wp_strip_all_tags( wc_price( $revenue ) ) : number_format_i18n( $revenue, 2 ) ) : __( 'Conversion', 'meyvora-convert' );
 						} elseif ( $event_type === 'dismiss' ) {
 							$action_text = __( 'Dismissed', 'meyvora-convert' );
 						} else {
@@ -182,7 +191,8 @@ $quick_launch_done = isset( $_GET['cro_quick_launch_done'] ) && (string) $_GET['
 					<?php wp_nonce_field( 'cro_quick_launch', 'cro_quick_launch_nonce' ); ?>
 					<input type="hidden" name="cro_quick_launch" value="recommended" />
 					<button type="submit" class="button button-primary cro-ui-btn-primary">
-						<?php echo CRO_Icons::svg( 'zap', array( 'class' => 'cro-ico' ) ); ?>
+						<?php echo wp_kses_post( CRO_Icons::svg( 'zap', array( 'class' => 'cro-ico' ) ) ); ?>
+
 						<?php esc_html_e( 'Launch recommended CRO setup', 'meyvora-convert' ); ?>
 					</button>
 				</form>

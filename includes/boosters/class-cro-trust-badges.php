@@ -64,7 +64,7 @@ class CRO_Trust_Badges {
 		$html = self::get_html();
 		if ( $html !== '' ) {
 			$this->rendered = true;
-			echo $html;
+			echo wp_kses_post( $html );
 		}
 	}
 

@@ -86,11 +86,12 @@ class CRO_Campaign_Model {
 	private static function default_targeting_rules() {
 		return array(
 			'page_mode' => 'all',
-			'pages'     => array(
-				'type'    => 'specific',
-				'include' => array( 'cart', 'product' ),
-				'exclude' => array( 'checkout' ),
-			),
+				'pages'     => array(
+					'type'    => 'specific',
+					'include' => array( 'cart', 'product' ),
+					// phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_exclude
+					'exclude' => array( 'checkout' ),
+				),
 			'behavior'  => array(
 				'min_time_on_page'     => 0,
 				'min_scroll_depth'     => 0,

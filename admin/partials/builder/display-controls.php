@@ -1,4 +1,5 @@
 <?php
+if ( ! defined( 'ABSPATH' ) ) exit;
 /**
  * Display controls partial for the campaign builder.
  * Expects $campaign_data (object with optional frequency_rules and schedule).
@@ -26,7 +27,8 @@ $currency_sym  = function_exists( 'get_woocommerce_currency_symbol' ) ? get_wooc
 	<!-- Frequency -->
 	<div class="cro-rule-section">
 		<h3>
-			<span class="cro-section-icon"><?php echo CRO_Icons::svg( 'refresh', array( 'class' => 'cro-ico' ) ); ?></span>
+			<span class="cro-section-icon"><?php echo wp_kses_post( CRO_Icons::svg( 'refresh', array( 'class' => 'cro-ico' ) ) ); ?></span>
+
 			<?php esc_html_e( 'Frequency', 'meyvora-convert' ); ?>
 		</h3>
 
@@ -122,7 +124,8 @@ $currency_sym  = function_exists( 'get_woocommerce_currency_symbol' ) ? get_wooc
 	<!-- Priority -->
 	<div class="cro-rule-section">
 		<h3>
-			<span class="cro-section-icon"><?php echo CRO_Icons::svg( 'trending-up', array( 'class' => 'cro-ico' ) ); ?></span>
+			<span class="cro-section-icon"><?php echo wp_kses_post( CRO_Icons::svg( 'trending-up', array( 'class' => 'cro-ico' ) ) ); ?></span>
+
 			<?php esc_html_e( 'Priority', 'meyvora-convert' ); ?>
 		</h3>
 
@@ -148,7 +151,8 @@ $currency_sym  = function_exists( 'get_woocommerce_currency_symbol' ) ? get_wooc
 	<!-- Schedule -->
 	<div class="cro-rule-section">
 		<h3>
-			<span class="cro-section-icon"><?php echo CRO_Icons::svg( 'calendar', array( 'class' => 'cro-ico' ) ); ?></span>
+			<span class="cro-section-icon"><?php echo wp_kses_post( CRO_Icons::svg( 'calendar', array( 'class' => 'cro-ico' ) ) ); ?></span>
+
 			<?php esc_html_e( 'Schedule', 'meyvora-convert' ); ?>
 		</h3>
 
@@ -219,7 +223,8 @@ $currency_sym  = function_exists( 'get_woocommerce_currency_symbol' ) ? get_wooc
 	<!-- Conversion Goal -->
 	<div class="cro-rule-section">
 		<h3>
-			<span class="cro-section-icon"><?php echo CRO_Icons::svg( 'target', array( 'class' => 'cro-ico' ) ); ?></span>
+			<span class="cro-section-icon"><?php echo wp_kses_post( CRO_Icons::svg( 'target', array( 'class' => 'cro-ico' ) ) ); ?></span>
+
 			<?php esc_html_e( 'Conversion Goal', 'meyvora-convert' ); ?>
 		</h3>
 
@@ -255,7 +260,8 @@ $currency_sym  = function_exists( 'get_woocommerce_currency_symbol' ) ? get_wooc
 	<!-- After Conversion -->
 	<div class="cro-rule-section">
 		<h3>
-			<span class="cro-section-icon"><?php echo CRO_Icons::svg( 'check', array( 'class' => 'cro-ico' ) ); ?></span>
+			<span class="cro-section-icon"><?php echo wp_kses_post( CRO_Icons::svg( 'check', array( 'class' => 'cro-ico' ) ) ); ?></span>
+
 			<?php esc_html_e( 'After Conversion', 'meyvora-convert' ); ?>
 		</h3>
 

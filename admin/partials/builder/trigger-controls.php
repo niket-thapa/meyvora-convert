@@ -1,4 +1,5 @@
 <?php
+if ( ! defined( 'ABSPATH' ) ) exit;
 /**
  * Trigger controls partial for the campaign builder.
  * Expects $campaign_data (object with optional trigger_rules array).
@@ -21,7 +22,8 @@ $intent_weights = isset( $trigger['intent_weights'] ) && is_array( $trigger['int
 				<input type="radio" name="trigger-type" value="exit_intent"
 					   <?php checked( $trigger['type'] ?? 'exit_intent', 'exit_intent' ); ?> />
 				<div class="cro-trigger-card">
-					<span class="cro-trigger-icon"><?php echo CRO_Icons::svg( 'door-open', array( 'class' => 'cro-ico' ) ); ?></span>
+					<span class="cro-trigger-icon"><?php echo wp_kses_post( CRO_Icons::svg( 'door-open', array( 'class' => 'cro-ico' ) ) ); ?></span>
+
 					<span class="cro-trigger-name"><?php esc_html_e( 'Exit Intent', 'meyvora-convert' ); ?></span>
 					<span class="cro-trigger-desc"><?php esc_html_e( 'When visitor is about to leave', 'meyvora-convert' ); ?></span>
 				</div>
@@ -31,7 +33,8 @@ $intent_weights = isset( $trigger['intent_weights'] ) && is_array( $trigger['int
 				<input type="radio" name="trigger-type" value="scroll"
 					   <?php checked( $trigger['type'] ?? 'exit_intent', 'scroll' ); ?> />
 				<div class="cro-trigger-card">
-					<span class="cro-trigger-icon"><?php echo CRO_Icons::svg( 'scroll', array( 'class' => 'cro-ico' ) ); ?></span>
+					<span class="cro-trigger-icon"><?php echo wp_kses_post( CRO_Icons::svg( 'scroll', array( 'class' => 'cro-ico' ) ) ); ?></span>
+
 					<span class="cro-trigger-name"><?php esc_html_e( 'Scroll Depth', 'meyvora-convert' ); ?></span>
 					<span class="cro-trigger-desc"><?php esc_html_e( 'When visitor scrolls to a point', 'meyvora-convert' ); ?></span>
 				</div>
@@ -41,7 +44,8 @@ $intent_weights = isset( $trigger['intent_weights'] ) && is_array( $trigger['int
 				<input type="radio" name="trigger-type" value="time"
 					   <?php checked( $trigger['type'] ?? 'exit_intent', 'time' ); ?> />
 				<div class="cro-trigger-card">
-					<span class="cro-trigger-icon"><?php echo CRO_Icons::svg( 'clock', array( 'class' => 'cro-ico' ) ); ?></span>
+					<span class="cro-trigger-icon"><?php echo wp_kses_post( CRO_Icons::svg( 'clock', array( 'class' => 'cro-ico' ) ) ); ?></span>
+
 					<span class="cro-trigger-name"><?php esc_html_e( 'Time Delay', 'meyvora-convert' ); ?></span>
 					<span class="cro-trigger-desc"><?php esc_html_e( 'After X seconds on page', 'meyvora-convert' ); ?></span>
 				</div>
@@ -51,7 +55,8 @@ $intent_weights = isset( $trigger['intent_weights'] ) && is_array( $trigger['int
 				<input type="radio" name="trigger-type" value="inactivity"
 					   <?php checked( $trigger['type'] ?? 'exit_intent', 'inactivity' ); ?> />
 				<div class="cro-trigger-card">
-					<span class="cro-trigger-icon"><?php echo CRO_Icons::svg( 'moon', array( 'class' => 'cro-ico' ) ); ?></span>
+					<span class="cro-trigger-icon"><?php echo wp_kses_post( CRO_Icons::svg( 'moon', array( 'class' => 'cro-ico' ) ) ); ?></span>
+
 					<span class="cro-trigger-name"><?php esc_html_e( 'Inactivity', 'meyvora-convert' ); ?></span>
 					<span class="cro-trigger-desc"><?php esc_html_e( 'When visitor stops interacting', 'meyvora-convert' ); ?></span>
 				</div>
@@ -61,7 +66,8 @@ $intent_weights = isset( $trigger['intent_weights'] ) && is_array( $trigger['int
 				<input type="radio" name="trigger-type" value="click"
 					   <?php checked( $trigger['type'] ?? 'exit_intent', 'click' ); ?> />
 				<div class="cro-trigger-card">
-					<span class="cro-trigger-icon"><?php echo CRO_Icons::svg( 'pointer', array( 'class' => 'cro-ico' ) ); ?></span>
+					<span class="cro-trigger-icon"><?php echo wp_kses_post( CRO_Icons::svg( 'pointer', array( 'class' => 'cro-ico' ) ) ); ?></span>
+
 					<span class="cro-trigger-name"><?php esc_html_e( 'Click', 'meyvora-convert' ); ?></span>
 					<span class="cro-trigger-desc"><?php esc_html_e( 'When element is clicked', 'meyvora-convert' ); ?></span>
 				</div>

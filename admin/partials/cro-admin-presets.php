@@ -4,6 +4,7 @@
  *
  * @package Meyvora_Convert
  */
+// phpcs:disable WordPress.Security.NonceVerification.Recommended
 
 if ( ! defined( 'WPINC' ) ) {
 	die;
@@ -109,7 +110,8 @@ $feature_labels = array(
 <div id="cro-preset-preview-modal" class="cro-preset-modal cro-hidden" role="dialog" aria-labelledby="cro-preset-preview-title" aria-modal="true">
 	<div class="cro-preset-modal-backdrop"></div>
 	<div class="cro-preset-modal-content">
-		<button type="button" class="cro-preset-modal-close" aria-label="<?php esc_attr_e( 'Close', 'meyvora-convert' ); ?>"><?php echo CRO_Icons::svg( 'x', array( 'class' => 'cro-ico' ) ); ?></button>
+		<button type="button" class="cro-preset-modal-close" aria-label="<?php esc_attr_e( 'Close', 'meyvora-convert' ) ); ?>"><?php echo wp_kses_post( CRO_Icons::svg( 'x', array( 'class' => 'cro-ico' ) ); ?></button>
+
 		<h2 id="cro-preset-preview-title" class="cro-preset-modal-title"><?php esc_html_e( 'Preset preview', 'meyvora-convert' ); ?></h2>
 		<div id="cro-preset-preview-body" class="cro-preset-modal-body"></div>
 		<div class="cro-preset-modal-footer">

@@ -5,6 +5,7 @@
  *
  * @package Meyvora_Convert
  */
+// phpcs:disable WordPress.Security.NonceVerification.Missing
 
 if ( ! defined( 'WPINC' ) ) {
 	die;

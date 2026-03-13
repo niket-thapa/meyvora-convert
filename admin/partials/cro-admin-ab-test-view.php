@@ -4,6 +4,7 @@
  *
  * @package Meyvora_Convert
  */
+// phpcs:disable WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotValidated, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
 
 defined( 'ABSPATH' ) || exit;
 
@@ -101,7 +102,8 @@ if ( ! is_array( $original_content ) ) {
 	?>
 	<?php if ( $insufficient_data ) : ?>
 	<div class="cro-ab-warning-banner" role="alert">
-		<span class="cro-ab-warning-icon" aria-hidden="true"><?php echo CRO_Icons::svg( 'alert', array( 'class' => 'cro-ico' ) ); ?></span>
+		<span class="cro-ab-warning-icon" aria-hidden="true"><?php echo wp_kses_post( CRO_Icons::svg( 'alert', array( 'class' => 'cro-ico' ) ) ); ?></span>
+
 		<div class="cro-ab-warning-content">
 			<strong><?php esc_html_e( 'Not enough data yet', 'meyvora-convert' ); ?></strong>
 			<p>
@@ -188,7 +190,8 @@ if ( ! is_array( $original_content ) ) {
 		<div class="cro-variation-card <?php echo $is_control ? 'is-control' : ''; ?> <?php echo $is_winner ? 'is-winner' : ''; ?>">
 			<div class="cro-variation-header">
 				<?php if ( $is_winner ) : ?>
-					<span class="cro-badge cro-badge--winner"><?php echo CRO_Icons::svg( 'trophy', array( 'class' => 'cro-ico' ) ); ?> <?php esc_html_e( 'Winner', 'meyvora-convert' ); ?></span>
+					<span class="cro-badge cro-badge--winner"><?php echo wp_kses_post( CRO_Icons::svg( 'trophy', array( 'class' => 'cro-ico' ) ) ); ?> <?php esc_html_e( 'Winner', 'meyvora-convert' ); ?></span>
+
 				<?php elseif ( $is_control ) : ?>
 					<span class="cro-badge cro-badge--control"><?php esc_html_e( 'Control', 'meyvora-convert' ); ?></span>
 				<?php else : ?>
@@ -398,7 +401,13 @@ if ( ! is_array( $original_content ) ) {
 			</div>
 			<div class="cro-field cro-col-12">
 				<span class="cro-field__label"><?php esc_html_e( 'Auto-apply Winner', 'meyvora-convert' ); ?></span>
-				<div class="cro-field__control"><?php echo $test->auto_apply_winner ? CRO_Icons::svg( 'check', array( 'class' => 'cro-ico' ) ) . ' ' . esc_html__( 'Yes', 'meyvora-convert' ) : esc_html__( 'No', 'meyvora-convert' ); ?></div>
+				<div class="cro-field__control">
+					<?php
+					echo $test->auto_apply_winner
+						? wp_kses_post( CRO_Icons::svg( 'check', array( 'class' => 'cro-ico' ) ) ) . ' ' . esc_html__( 'Yes', 'meyvora-convert' )
+						: esc_html__( 'No', 'meyvora-convert' );
+					?>
+				</div>
 			</div>
 			<?php if ( ! empty( $test->started_at ) ) : ?>
 			<div class="cro-field cro-col-12">

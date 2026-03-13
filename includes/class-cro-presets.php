@@ -219,6 +219,7 @@ class CRO_Presets {
 						'pages' => array(
 							'type'    => 'specific',
 							'include' => array( 'product', 'cart' ),
+							// phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_exclude
 							'exclude' => array( 'checkout' ),
 						),
 					),
@@ -263,6 +264,7 @@ class CRO_Presets {
 						'pages' => array(
 							'type'    => 'specific',
 							'include' => array( 'cart' ),
+							// phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_exclude
 							'exclude' => array(),
 						),
 					),
@@ -339,6 +341,7 @@ class CRO_Presets {
 						'pages' => array(
 							'type'    => 'specific',
 							'include' => array( 'product', 'cart' ),
+							// phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_exclude
 							'exclude' => array( 'checkout' ),
 						),
 					),

@@ -157,7 +157,7 @@ class CRO_Admin_Layout {
 					echo '<span class="cro-pill">' . esc_html( $pill ) . '</span>';
 				} elseif ( is_array( $pill ) && isset( $pill['label'] ) ) {
 					$class = 'cro-pill' . ( ! empty( $pill['class'] ) ? ' ' . esc_attr( $pill['class'] ) : '' );
-					echo '<span class="' . $class . '">' . esc_html( $pill['label'] ) . '</span>';
+					echo '<span class="' . esc_attr( $class ) . '">' . esc_html( $pill['label'] ) . '</span>';
 				}
 			}
 			echo '</div>';
@@ -174,7 +174,7 @@ class CRO_Admin_Layout {
 				foreach ( $attrs as $k => $v ) {
 					$attr_str .= ' ' . esc_attr( $k ) . '="' . esc_attr( $v ) . '"';
 				}
-				echo '<button type="button" id="' . esc_attr( $primary_cta['button_id'] ) . '" class="button button-primary cro-ui-btn-primary"' . $attr_str . '>' . esc_html( $primary_cta['label'] ) . '</button>';
+				echo '<button type="button" id="' . esc_attr( $primary_cta['button_id'] ) . '" class="button button-primary cro-ui-btn-primary"' . wp_kses_post( $attr_str ) . '>' . esc_html( $primary_cta['label'] ) . '</button>';
 			}
 			echo '</div>';
 		}

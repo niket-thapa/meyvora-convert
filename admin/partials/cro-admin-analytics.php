@@ -1,4 +1,6 @@
 <?php
+if ( ! defined( 'ABSPATH' ) ) exit;
+// phpcs:disable WordPress.Security.NonceVerification.Recommended
 /**
  * Analytics Dashboard
  *
@@ -22,8 +24,8 @@ function meyvora_kpi_change( $current, $previous ) {
 
 $analytics = new CRO_Analytics();
 
-$date_from   = isset( $_GET['from'] ) ? sanitize_text_field( wp_unslash( $_GET['from'] ) ) : date( 'Y-m-d', strtotime( '-30 days' ) );
-$date_to     = isset( $_GET['to'] ) ? sanitize_text_field( wp_unslash( $_GET['to'] ) ) : date( 'Y-m-d' );
+$date_from   = isset( $_GET['from'] ) ? sanitize_text_field( wp_unslash( $_GET['from'] ) ) : gmdate( 'Y-m-d', strtotime( '-30 days' ) );
+$date_to     = isset( $_GET['to'] ) ? sanitize_text_field( wp_unslash( $_GET['to'] ) ) : gmdate( 'Y-m-d' );
 $campaign_id = isset( $_GET['campaign_id'] ) ? absint( $_GET['campaign_id'] ) : null;
 if ( $campaign_id === 0 ) {
 	$campaign_id = null;
@@ -70,7 +72,7 @@ if ( $campaign_id !== null ) {
 	$export_url_events = add_query_arg( 'campaign_id', $campaign_id, $export_url_events );
 }
 
-wp_enqueue_script( 'chart-js', 'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js', array(), '4.4.0', true );
+wp_enqueue_script( 'chart-js', 'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js', array(), '4.4.0', true ); // phpcs:ignore PluginCheck.CodeAnalysis.EnqueuedResourceOffloading.OffloadedContent
 ?>
 
 	<!-- Filters: Date range + Campaign -->
@@ -79,19 +81,19 @@ wp_enqueue_script( 'chart-js', 'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist
 			<input type="hidden" name="page" value="cro-analytics" />
 
 			<div class="cro-date-presets">
-				<button type="button" class="button <?php echo $date_from === date( 'Y-m-d', strtotime( '-7 days' ) ) ? 'active' : ''; ?>"
-					data-from="<?php echo esc_attr( date( 'Y-m-d', strtotime( '-7 days' ) ) ); ?>"
-					data-to="<?php echo esc_attr( date( 'Y-m-d' ) ); ?>">
+				<button type="button" class="button <?php echo $date_from === gmdate( 'Y-m-d', strtotime( '-7 days' ) ) ? 'active' : ''; ?>"
+					data-from="<?php echo esc_attr( gmdate( 'Y-m-d', strtotime( '-7 days' ) ) ); ?>"
+					data-to="<?php echo esc_attr( gmdate( 'Y-m-d' ) ); ?>">
 					<?php esc_html_e( 'Last 7 days', 'meyvora-convert' ); ?>
 				</button>
-				<button type="button" class="button <?php echo $date_from === date( 'Y-m-d', strtotime( '-30 days' ) ) ? 'active' : ''; ?>"
-					data-from="<?php echo esc_attr( date( 'Y-m-d', strtotime( '-30 days' ) ) ); ?>"
-					data-to="<?php echo esc_attr( date( 'Y-m-d' ) ); ?>">
+				<button type="button" class="button <?php echo $date_from === gmdate( 'Y-m-d', strtotime( '-30 days' ) ) ? 'active' : ''; ?>"
+					data-from="<?php echo esc_attr( gmdate( 'Y-m-d', strtotime( '-30 days' ) ) ); ?>"
+					data-to="<?php echo esc_attr( gmdate( 'Y-m-d' ) ); ?>">
 					<?php esc_html_e( 'Last 30 days', 'meyvora-convert' ); ?>
 				</button>
 				<button type="button" class="button"
-					data-from="<?php echo esc_attr( date( 'Y-m-d', strtotime( '-90 days' ) ) ); ?>"
-					data-to="<?php echo esc_attr( date( 'Y-m-d' ) ); ?>">
+					data-from="<?php echo esc_attr( gmdate( 'Y-m-d', strtotime( '-90 days' ) ) ); ?>"
+					data-to="<?php echo esc_attr( gmdate( 'Y-m-d' ) ); ?>">
 					<?php esc_html_e( 'Last 90 days', 'meyvora-convert' ); ?>
 				</button>
 			</div>
@@ -112,7 +114,7 @@ wp_enqueue_script( 'chart-js', 'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist
 			<div class="cro-export-actions">
 				<a href="<?php echo esc_url( $export_url_events ); ?>" class="button"><?php esc_html_e( 'Export events CSV', 'meyvora-convert' ); ?></a>
 				<a href="<?php echo esc_url( $export_url_daily ); ?>" class="button"><?php esc_html_e( 'Daily summary CSV', 'meyvora-convert' ); ?></a>
-				<span class="cro-muted" style="font-size: 12px;"><?php echo esc_html( sprintf( __( 'Max %d days.', 'meyvora-convert' ), $export_max_days ) ); ?></span>
+				<span class="cro-muted" style="font-size: 12px;"><?php echo esc_html( sprintf( /* translators: %d is the maximum number of days for the export range. */ __( 'Max %d days.', 'meyvora-convert' ), $export_max_days ) ); ?></span>
 			</div>
 		</form>
 	</div>
@@ -120,16 +122,18 @@ wp_enqueue_script( 'chart-js', 'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist
 	<!-- KPI Cards -->
 	<div class="cro-kpi-grid">
 		<div class="cro-kpi-card">
-			<div class="cro-kpi-icon"><?php echo CRO_Icons::svg( 'eye', array( 'class' => 'cro-ico' ) ); ?></div>
+			<div class="cro-kpi-icon"><?php echo wp_kses_post( CRO_Icons::svg( 'eye', array( 'class' => 'cro-ico' ) ) ); ?></div>
+
 			<div class="cro-kpi-content">
 				<span class="cro-kpi-value"><?php echo esc_html( number_format_i18n( $summary['impressions'] ) ); ?></span>
 				<span class="cro-kpi-label"><?php esc_html_e( 'Impressions', 'meyvora-convert' ); ?></span>
-				<?php echo meyvora_kpi_change( $summary['impressions'], $summary['prev_impressions'] ); ?>
+				<?php echo wp_kses_post( meyvora_kpi_change( $summary['impressions'], $summary['prev_impressions'] ) ); ?>
 			</div>
 		</div>
 
 		<div class="cro-kpi-card">
-			<div class="cro-kpi-icon"><?php echo CRO_Icons::svg( 'mouse-pointer', array( 'class' => 'cro-ico' ) ); ?></div>
+			<div class="cro-kpi-icon"><?php echo wp_kses_post( CRO_Icons::svg( 'mouse-pointer', array( 'class' => 'cro-ico' ) ) ); ?></div>
+
 			<div class="cro-kpi-content">
 				<span class="cro-kpi-value"><?php echo esc_html( number_format_i18n( $summary['clicks'] ) ); ?></span>
 				<span class="cro-kpi-label"><?php esc_html_e( 'Clicks', 'meyvora-convert' ); ?></span>
@@ -137,7 +141,8 @@ wp_enqueue_script( 'chart-js', 'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist
 		</div>
 
 		<div class="cro-kpi-card">
-			<div class="cro-kpi-icon"><?php echo CRO_Icons::svg( 'trending-up', array( 'class' => 'cro-ico' ) ); ?></div>
+			<div class="cro-kpi-icon"><?php echo wp_kses_post( CRO_Icons::svg( 'trending-up', array( 'class' => 'cro-ico' ) ) ); ?></div>
+
 			<div class="cro-kpi-content">
 				<span class="cro-kpi-value"><?php echo esc_html( $summary['ctr'] ); ?>%</span>
 				<span class="cro-kpi-label"><?php esc_html_e( 'CTR', 'meyvora-convert' ); ?></span>
@@ -145,16 +150,18 @@ wp_enqueue_script( 'chart-js', 'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist
 		</div>
 
 		<div class="cro-kpi-card cro-kpi-card--revenue">
-			<div class="cro-kpi-icon"><?php echo CRO_Icons::svg( 'dollar-sign', array( 'class' => 'cro-ico' ) ); ?></div>
+			<div class="cro-kpi-icon"><?php echo wp_kses_post( CRO_Icons::svg( 'dollar-sign', array( 'class' => 'cro-ico' ) ) ); ?></div>
+
 			<div class="cro-kpi-content">
 				<span class="cro-kpi-value"><?php echo wp_kses_post( $summary['revenue_formatted'] ); ?></span>
 				<span class="cro-kpi-label"><?php esc_html_e( 'Revenue influenced', 'meyvora-convert' ); ?></span>
-				<?php echo meyvora_kpi_change( $summary['revenue'], $summary['prev_revenue'] ); ?>
+				<?php echo wp_kses_post( meyvora_kpi_change( $summary['revenue'], $summary['prev_revenue'] ) ); ?>
 			</div>
 		</div>
 
 		<div class="cro-kpi-card">
-			<div class="cro-kpi-icon"><?php echo CRO_Icons::svg( 'shopping-cart', array( 'class' => 'cro-ico' ) ); ?></div>
+			<div class="cro-kpi-icon"><?php echo wp_kses_post( CRO_Icons::svg( 'shopping-cart', array( 'class' => 'cro-ico' ) ) ); ?></div>
+
 			<div class="cro-kpi-content">
 				<span class="cro-kpi-value"><?php echo esc_html( number_format_i18n( $summary['sticky_cart_adds'] ) ); ?></span>
 				<span class="cro-kpi-label"><?php esc_html_e( 'Add-to-cart from sticky', 'meyvora-convert' ); ?></span>
@@ -162,7 +169,8 @@ wp_enqueue_script( 'chart-js', 'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist
 		</div>
 
 		<div class="cro-kpi-card">
-			<div class="cro-kpi-icon"><?php echo CRO_Icons::svg( 'truck', array( 'class' => 'cro-ico' ) ); ?></div>
+			<div class="cro-kpi-icon"><?php echo wp_kses_post( CRO_Icons::svg( 'truck', array( 'class' => 'cro-ico' ) ) ); ?></div>
+
 			<div class="cro-kpi-content">
 				<span class="cro-kpi-value"><?php echo esc_html( number_format_i18n( $summary['shipping_bar_interactions'] ) ); ?></span>
 				<span class="cro-kpi-label"><?php esc_html_e( 'Shipping bar interactions', 'meyvora-convert' ); ?></span>
@@ -173,30 +181,34 @@ wp_enqueue_script( 'chart-js', 'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist
 	<!-- Secondary stats -->
 	<div class="cro-stats-grid">
 		<div class="cro-stat-card">
-			<div class="cro-stat-icon"><?php echo CRO_Icons::svg( 'target', array( 'class' => 'cro-ico' ) ); ?></div>
+			<div class="cro-stat-icon"><?php echo wp_kses_post( CRO_Icons::svg( 'target', array( 'class' => 'cro-ico' ) ) ); ?></div>
+
 			<div class="cro-stat-content">
 				<span class="cro-stat-value"><?php echo esc_html( number_format_i18n( $summary['conversions'] ) ); ?></span>
 				<span class="cro-stat-label"><?php esc_html_e( 'Conversions', 'meyvora-convert' ); ?></span>
-				<?php echo meyvora_kpi_change( $summary['conversions'], $summary['prev_conversions'] ); ?>
+				<?php echo wp_kses_post( meyvora_kpi_change( $summary['conversions'], $summary['prev_conversions'] ) ); ?>
 			</div>
 		</div>
 		<div class="cro-stat-card">
-			<div class="cro-stat-icon"><?php echo CRO_Icons::svg( 'chart', array( 'class' => 'cro-ico' ) ); ?></div>
+			<div class="cro-stat-icon"><?php echo wp_kses_post( CRO_Icons::svg( 'chart', array( 'class' => 'cro-ico' ) ) ); ?></div>
+
 			<div class="cro-stat-content">
 				<span class="cro-stat-value"><?php echo esc_html( $summary['conversion_rate'] ); ?>%</span>
 				<span class="cro-stat-label"><?php esc_html_e( 'Conversion Rate', 'meyvora-convert' ); ?></span>
 			</div>
 		</div>
 		<div class="cro-stat-card">
-			<div class="cro-stat-icon"><?php echo CRO_Icons::svg( 'mail', array( 'class' => 'cro-ico' ) ); ?></div>
+			<div class="cro-stat-icon"><?php echo wp_kses_post( CRO_Icons::svg( 'mail', array( 'class' => 'cro-ico' ) ) ); ?></div>
+
 			<div class="cro-stat-content">
 				<span class="cro-stat-value"><?php echo esc_html( number_format_i18n( $summary['emails'] ) ); ?></span>
 				<span class="cro-stat-label"><?php esc_html_e( 'Emails Captured', 'meyvora-convert' ); ?></span>
-				<?php echo meyvora_kpi_change( $summary['emails'], $summary['prev_emails'] ); ?>
+				<?php echo wp_kses_post( meyvora_kpi_change( $summary['emails'], $summary['prev_emails'] ) ); ?>
 			</div>
 		</div>
 		<div class="cro-stat-card">
-			<div class="cro-stat-icon"><?php echo CRO_Icons::svg( 'dollar-sign', array( 'class' => 'cro-ico' ) ); ?></div>
+			<div class="cro-stat-icon"><?php echo wp_kses_post( CRO_Icons::svg( 'dollar-sign', array( 'class' => 'cro-ico' ) ) ); ?></div>
+
 			<div class="cro-stat-content">
 				<span class="cro-stat-value"><?php echo wp_kses_post( $summary['rpv_formatted'] ); ?></span>
 				<span class="cro-stat-label"><?php esc_html_e( 'Revenue per Visitor', 'meyvora-convert' ); ?></span>
@@ -262,7 +274,7 @@ wp_enqueue_script( 'chart-js', 'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist
 						<td class="cro-table-num"><?php echo esc_html( number_format_i18n( $campaign['impressions'] ) ); ?></td>
 						<td class="cro-table-num"><?php echo esc_html( number_format_i18n( $campaign['conversions'] ) ); ?></td>
 						<td class="cro-table-num"><?php echo esc_html( $rate ); ?>%</td>
-						<td class="cro-table-num"><?php echo function_exists( 'wc_price' ) ? wc_price( $campaign['revenue'] ) : esc_html( $campaign['revenue'] ); ?></td>
+						<td class="cro-table-num"><?php echo function_exists( 'wc_price' ) ? wp_kses_post( wc_price( $campaign['revenue'] ) ) : esc_html( $campaign['revenue'] ); ?></td>
 					</tr>
 					<?php endforeach; ?>
 					<?php endif; ?>
@@ -295,7 +307,7 @@ wp_enqueue_script( 'chart-js', 'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist
 							<?php echo esc_html( wp_parse_url( $page['page_url'], PHP_URL_PATH ) ?: '/' ); ?>
 						</td>
 						<td class="cro-table-num"><?php echo esc_html( number_format_i18n( $page['conversions'] ) ); ?></td>
-						<td class="cro-table-num"><?php echo function_exists( 'wc_price' ) ? wc_price( $page['revenue'] ) : esc_html( $page['revenue'] ); ?></td>
+						<td class="cro-table-num"><?php echo function_exists( 'wc_price' ) ? wp_kses_post( wc_price( $page['revenue'] ) ) : esc_html( $page['revenue'] ); ?></td>
 					</tr>
 					<?php endforeach; ?>
 					<?php endif; ?>

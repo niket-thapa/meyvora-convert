@@ -107,7 +107,8 @@ class CRO_Gutenberg_Block {
 			'meyvora-convert-campaign-block',
 			$script_url,
 			$dependencies,
-			$version
+			$version,
+			true
 		);
 
 		$campaigns = self::get_campaigns_for_block();

@@ -4,6 +4,7 @@
  *
  * @package Meyvora_Convert
  */
+// phpcs:disable WordPress.Security.NonceVerification.Recommended
 
 if ( ! defined( 'WPINC' ) ) {
 	die;
@@ -143,7 +144,7 @@ $export_url_daily   = add_query_arg( array_merge( $export_base, array( 'format' 
 				<p class="cro-export-buttons" style="margin: 12px 0 0;">
 					<a href="<?php echo esc_url( $export_url_events ); ?>" class="button"><?php esc_html_e( 'Export events CSV', 'meyvora-convert' ); ?></a>
 					<a href="<?php echo esc_url( $export_url_daily ); ?>" class="button"><?php esc_html_e( 'Daily summary CSV', 'meyvora-convert' ); ?></a>
-					<span class="cro-muted" style="font-size: 12px;"><?php echo esc_html( sprintf( __( 'Max %d days.', 'meyvora-convert' ), $export_max_days ) ); ?></span>
+					<span class="cro-muted" style="font-size: 12px;"><?php echo esc_html( sprintf( /* translators: %d is the maximum number of days for the export range. */ __( 'Max %d days.', 'meyvora-convert' ), $export_max_days ) ); ?></span>
 				</p>
 			</div>
 		</div>
@@ -161,7 +162,7 @@ $export_url_daily   = add_query_arg( array_merge( $export_base, array( 'format' 
 
 			<?php if ( empty( $insights ) ) : ?>
 				<div class="cro-empty-state">
-					<span class="cro-empty-state__icon" aria-hidden="true"><?php echo class_exists( 'CRO_Icons' ) ? CRO_Icons::svg( 'trending-up', array( 'class' => 'cro-ico cro-ico--lg' ) ) : ''; ?></span>
+					<span class="cro-empty-state__icon" aria-hidden="true"><?php echo wp_kses_post( class_exists( 'CRO_Icons' ) ? CRO_Icons::svg( 'trending-up', array( 'class' => 'cro-ico cro-ico--lg' ) ) : '' ); ?></span>
 					<h3 class="cro-empty-state__title"><?php esc_html_e( 'No insights yet', 'meyvora-convert' ); ?></h3>
 					<p class="cro-empty-state__text">
 						<?php esc_html_e( 'As impressions and conversions are tracked, we’ll show top performers, underperforming campaigns, and next best actions here.', 'meyvora-convert' ); ?>

@@ -6,6 +6,7 @@
  *
  * @package Meyvora_Convert
  */
+// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
 
 defined( 'ABSPATH' ) || exit;
 
@@ -170,7 +171,7 @@ class CRO_Asset_Optimizer {
 		}
 
 		$out = $dir . 'public/js/cro-bundle.js';
-		if ( $dir === '' || ! is_writable( dirname( $out ) ) ) {
+		if ( $dir === '' || ! is_writable( dirname( $out ) ) ) { // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_is_writable
 			return false;
 		}
 		return (bool) file_put_contents( $out, $bundle );

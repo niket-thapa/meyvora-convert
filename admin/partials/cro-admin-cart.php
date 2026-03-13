@@ -4,6 +4,7 @@
  *
  * @package Meyvora_Convert
  */
+// phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
 
 // If this file is called directly, abort.
 if ( ! defined( 'WPINC' ) ) {
@@ -158,7 +159,8 @@ $cart_settings = wp_parse_args(
 		<!-- Trust Message Section -->
 		<div class="cro-settings-section">
 			<h2>
-				<?php echo CRO_Icons::svg( 'shield', array( 'class' => 'cro-ico' ) ); ?>
+				<?php echo wp_kses_post( CRO_Icons::svg( 'shield', array( 'class' => 'cro-ico' ) ) ); ?>
+
 				<?php esc_html_e( 'Trust Message', 'meyvora-convert' ); ?>
 			</h2>
 
@@ -187,7 +189,8 @@ $cart_settings = wp_parse_args(
 		<!-- Urgency Section -->
 		<div class="cro-settings-section">
 			<h2>
-				<?php echo CRO_Icons::svg( 'alert', array( 'class' => 'cro-ico' ) ); ?>
+				<?php echo wp_kses_post( CRO_Icons::svg( 'alert', array( 'class' => 'cro-ico' ) ) ); ?>
+
 				<?php esc_html_e( 'Urgency Messaging', 'meyvora-convert' ); ?>
 			</h2>
 			<p class="cro-section-description">
@@ -234,7 +237,8 @@ $cart_settings = wp_parse_args(
 		<!-- Benefits List Section -->
 		<div class="cro-settings-section">
 			<h2>
-				<?php echo CRO_Icons::svg( 'check', array( 'class' => 'cro-ico' ) ); ?>
+				<?php echo wp_kses_post( CRO_Icons::svg( 'check', array( 'class' => 'cro-ico' ) ) ); ?>
+
 				<?php esc_html_e( 'Benefits List', 'meyvora-convert' ); ?>
 			</h2>
 
@@ -263,7 +267,8 @@ $cart_settings = wp_parse_args(
 		<!-- Checkout Button Section -->
 		<div class="cro-settings-section">
 			<h2>
-				<?php echo CRO_Icons::svg( 'shopping-cart', array( 'class' => 'cro-ico' ) ); ?>
+				<?php echo wp_kses_post( CRO_Icons::svg( 'shopping-cart', array( 'class' => 'cro-ico' ) ) ); ?>
+
 				<?php esc_html_e( 'Checkout Button', 'meyvora-convert' ); ?>
 			</h2>
 
@@ -294,7 +299,8 @@ $cart_settings = wp_parse_args(
 		<!-- Exit-intent nudge (cart/checkout, once per session, mobile-safe) -->
 		<div class="cro-settings-section">
 			<h2>
-				<?php echo CRO_Icons::svg( 'door-open', array( 'class' => 'cro-ico' ) ); ?>
+				<?php echo wp_kses_post( CRO_Icons::svg( 'door-open', array( 'class' => 'cro-ico' ) ) ); ?>
+
 				<?php esc_html_e( 'Exit-intent nudge', 'meyvora-convert' ); ?>
 			</h2>
 			<p class="cro-section-description">
@@ -340,7 +346,8 @@ $cart_settings = wp_parse_args(
 		<!-- Banner frequency cap (shipping bar, trust, urgency, offer) -->
 		<div class="cro-settings-section">
 			<h2>
-				<?php echo CRO_Icons::svg( 'eye', array( 'class' => 'cro-ico' ) ); ?>
+				<?php echo wp_kses_post( CRO_Icons::svg( 'eye', array( 'class' => 'cro-ico' ) ) ); ?>
+
 				<?php esc_html_e( 'Banner frequency cap', 'meyvora-convert' ); ?>
 			</h2>
 			<p class="cro-section-description">
@@ -386,7 +393,8 @@ $cart_settings = wp_parse_args(
 		<!-- Abandoned cart reminders -->
 		<div class="cro-settings-section">
 			<h2>
-				<?php echo CRO_Icons::svg( 'mail', array( 'class' => 'cro-ico' ) ); ?>
+				<?php echo wp_kses_post( CRO_Icons::svg( 'mail', array( 'class' => 'cro-ico' ) ) ); ?>
+
 				<?php esc_html_e( 'Abandoned cart reminders', 'meyvora-convert' ); ?>
 			</h2>
 			<p class="cro-section-description">
@@ -558,7 +566,8 @@ $cart_settings = wp_parse_args(
 		<!-- Upsells on Cart Page -->
 		<div class="cro-settings-section">
 			<h2>
-				<?php echo CRO_Icons::svg( 'trending-up', array( 'class' => 'cro-ico' ) ); ?>
+				<?php echo wp_kses_post( CRO_Icons::svg( 'trending-up', array( 'class' => 'cro-ico' ) ) ); ?>
+
 				<?php esc_html_e( 'Upsells on Cart Page', 'meyvora-convert' ); ?>
 			</h2>
 			<?php $upsell_settings = (array) $settings->get( 'cart_optimizer', 'upsells', array() ); ?>
@@ -593,7 +602,8 @@ $cart_settings = wp_parse_args(
 		<!-- Cross-Sells on Cart Page -->
 		<div class="cro-settings-section">
 			<h2>
-				<?php echo CRO_Icons::svg( 'shuffle', array( 'class' => 'cro-ico' ) ); ?>
+				<?php echo wp_kses_post( CRO_Icons::svg( 'shuffle', array( 'class' => 'cro-ico' ) ) ); ?>
+
 				<?php esc_html_e( 'Cross-Sells on Cart Page', 'meyvora-convert' ); ?>
 			</h2>
 			<?php $cross_sell_settings = (array) $settings->get( 'cart_optimizer', 'cross_sells', array() ); ?>
@@ -628,7 +638,8 @@ $cart_settings = wp_parse_args(
 		<!-- Offer Banner Section (classic cart/checkout) -->
 		<div class="cro-settings-section">
 			<h2>
-				<?php echo CRO_Icons::svg( 'tag', array( 'class' => 'cro-ico' ) ); ?>
+				<?php echo wp_kses_post( CRO_Icons::svg( 'tag', array( 'class' => 'cro-ico' ) ) ); ?>
+
 				<?php esc_html_e( 'Offer Banner', 'meyvora-convert' ); ?>
 			</h2>
 			<p class="cro-section-description">

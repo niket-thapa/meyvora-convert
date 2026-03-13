@@ -4,6 +4,7 @@
  *
  * @package Meyvora_Convert
  */
+// phpcs:disable WordPress.Security.NonceVerification.Recommended
 
 // If this file is called directly, abort.
 if ( ! defined( 'WPINC' ) ) {
@@ -36,7 +37,8 @@ if ( ! empty( $_GET['cro_bulk_done'] ) ) {
 
 	<?php if ( empty( $campaigns ) ) : ?>
 		<div class="cro-table-empty-state">
-			<span class="cro-table-empty-state__icon" aria-hidden="true"><?php echo CRO_Icons::svg( 'sparkles', array( 'class' => 'cro-ico' ) ); ?></span>
+			<span class="cro-table-empty-state__icon" aria-hidden="true"><?php echo wp_kses_post( CRO_Icons::svg( 'sparkles', array( 'class' => 'cro-ico' ) ) ); ?></span>
+
 			<h3 class="cro-table-empty-state__title"><?php esc_html_e( 'No campaigns yet', 'meyvora-convert' ); ?></h3>
 			<p class="cro-table-empty-state__text"><?php esc_html_e( 'Create your first campaign to show exit intent, scroll, or time-based offers to visitors.', 'meyvora-convert' ); ?></p>
 			<p class="cro-mt-2">

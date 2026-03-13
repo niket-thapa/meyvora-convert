@@ -201,36 +201,36 @@ class CRO_Offer_Engine {
 	public static function condition_label( $key, $value ) {
 		switch ( $key ) {
 			case 'min_cart_total':
-				return sprintf( __( 'Cart ≥ %s', 'meyvora-convert' ), self::format_amount_display( $value ) );
+				return sprintf( /* translators: %s is the formatted cart total amount. */ __( 'Cart ≥ %s', 'meyvora-convert' ), self::format_amount_display( $value ) );
 			case 'max_cart_total':
-				return sprintf( __( 'Cart ≤ %s', 'meyvora-convert' ), self::format_amount_display( $value ) );
+				return sprintf( /* translators: %s is the formatted cart total amount. */ __( 'Cart ≤ %s', 'meyvora-convert' ), self::format_amount_display( $value ) );
 			case 'min_items':
-				return sprintf( _n( '%d item', '%d items', (int) $value, 'meyvora-convert' ), (int) $value );
+				return sprintf( /* translators: %d is the number of cart items. */ _n( '%d item', '%d items', (int) $value, 'meyvora-convert' ), (int) $value );
 			case 'first_time_customer':
 				return __( 'First-time customer', 'meyvora-convert' );
 			case 'returning_customer_min_orders':
 			case 'returning_customer':
-				return sprintf( __( 'Returning customer (≥%d orders)', 'meyvora-convert' ), (int) $value );
+				return sprintf( /* translators: %d is the minimum number of previous orders. */ __( 'Returning customer (≥%d orders)', 'meyvora-convert' ), (int) $value );
 			case 'lifetime_spend_min':
-				return sprintf( __( 'Lifetime spend ≥ %s', 'meyvora-convert' ), self::format_amount_display( $value ) );
+				return sprintf( /* translators: %s is the formatted lifetime spend amount. */ __( 'Lifetime spend ≥ %s', 'meyvora-convert' ), self::format_amount_display( $value ) );
 			case 'allowed_roles':
 				return is_array( $value ) && ! empty( $value ) ? __( 'Allowed roles', 'meyvora-convert' ) . ': ' . implode( ', ', array_map( 'esc_html', $value ) ) : __( 'Allowed roles', 'meyvora-convert' );
 			case 'excluded_roles':
 				return is_array( $value ) && ! empty( $value ) ? __( 'Excluded roles', 'meyvora-convert' ) . ': ' . implode( ', ', array_map( 'esc_html', $value ) ) : __( 'Excluded roles', 'meyvora-convert' );
 			case 'include_categories':
-				return is_array( $value ) && ! empty( $value ) ? sprintf( __( 'Categories only (%d)', 'meyvora-convert' ), count( $value ) ) : __( 'Include categories', 'meyvora-convert' );
+				return is_array( $value ) && ! empty( $value ) ? sprintf( /* translators: %d is the number of selected product categories. */ __( 'Categories only (%d)', 'meyvora-convert' ), count( $value ) ) : __( 'Include categories', 'meyvora-convert' );
 			case 'exclude_categories':
-				return is_array( $value ) && ! empty( $value ) ? sprintf( __( 'Exclude categories (%d)', 'meyvora-convert' ), count( $value ) ) : __( 'Exclude categories', 'meyvora-convert' );
+				return is_array( $value ) && ! empty( $value ) ? sprintf( /* translators: %d is the number of excluded product categories. */ __( 'Exclude categories (%d)', 'meyvora-convert' ), count( $value ) ) : __( 'Exclude categories', 'meyvora-convert' );
 			case 'include_products':
-				return is_array( $value ) && ! empty( $value ) ? sprintf( __( 'Include products (%d)', 'meyvora-convert' ), count( $value ) ) : __( 'Include products', 'meyvora-convert' );
+				return is_array( $value ) && ! empty( $value ) ? sprintf( /* translators: %d is the number of included products. */ __( 'Include products (%d)', 'meyvora-convert' ), count( $value ) ) : __( 'Include products', 'meyvora-convert' );
 			case 'exclude_products':
-				return is_array( $value ) && ! empty( $value ) ? sprintf( __( 'Exclude products (%d)', 'meyvora-convert' ), count( $value ) ) : __( 'Exclude products', 'meyvora-convert' );
+				return is_array( $value ) && ! empty( $value ) ? sprintf( /* translators: %d is the number of excluded products. */ __( 'Exclude products (%d)', 'meyvora-convert' ), count( $value ) ) : __( 'Exclude products', 'meyvora-convert' );
 			case 'exclude_sale_items':
 				return $value ? __( 'No sale items in cart', 'meyvora-convert' ) : __( 'Sale items allowed', 'meyvora-convert' );
 			case 'min_qty_for_category':
-				return is_array( $value ) && ! empty( $value ) ? sprintf( __( 'Min qty per category (%d)', 'meyvora-convert' ), count( $value ) ) : __( 'Min qty for category', 'meyvora-convert' );
+				return is_array( $value ) && ! empty( $value ) ? sprintf( /* translators: %d is the number of category rules. */ __( 'Min qty per category (%d)', 'meyvora-convert' ), count( $value ) ) : __( 'Min qty for category', 'meyvora-convert' );
 			case 'cart_contains_category':
-				return is_array( $value ) && ! empty( $value ) ? sprintf( __( 'Cart contains category (%d)', 'meyvora-convert' ), count( $value ) ) : __( 'Cart contains category', 'meyvora-convert' );
+				return is_array( $value ) && ! empty( $value ) ? sprintf( /* translators: %d is the number of required categories. */ __( 'Cart contains category (%d)', 'meyvora-convert' ), count( $value ) ) : __( 'Cart contains category', 'meyvora-convert' );
 			default:
 				return (string) $key;
 		}
@@ -315,23 +315,23 @@ class CRO_Offer_Engine {
 	public static function condition_suggestion( $key, $value, array $context ) {
 		switch ( $key ) {
 			case 'min_cart_total':
-				return sprintf( __( 'Increase cart total to at least %s', 'meyvora-convert' ), self::format_amount_display( is_numeric( $value ) ? $value : 0 ) );
+				return sprintf( /* translators: %s is the formatted minimum cart total amount. */ __( 'Increase cart total to at least %s', 'meyvora-convert' ), self::format_amount_display( is_numeric( $value ) ? $value : 0 ) );
 			case 'max_cart_total':
-				return sprintf( __( 'Lower cart total to at most %s', 'meyvora-convert' ), self::format_amount_display( is_numeric( $value ) ? $value : 0 ) );
+				return sprintf( /* translators: %s is the formatted maximum cart total amount. */ __( 'Lower cart total to at most %s', 'meyvora-convert' ), self::format_amount_display( is_numeric( $value ) ? $value : 0 ) );
 			case 'min_items':
 				$n = is_numeric( $value ) ? (int) $value : 0;
-				return sprintf( _n( 'Add at least %d item to cart', 'Add at least %d items to cart', $n, 'meyvora-convert' ), $n );
+				return sprintf( /* translators: %d is the minimum number of items to add. */ _n( 'Add at least %d item to cart', 'Add at least %d items to cart', $n, 'meyvora-convert' ), $n );
 			case 'first_time_customer':
 				return __( 'Use a first-time customer (0 orders)', 'meyvora-convert' );
 			case 'returning_customer_min_orders':
 			case 'returning_customer':
-				return sprintf( __( 'Use a returning customer (≥%d orders)', 'meyvora-convert' ), is_numeric( $value ) ? (int) $value : 1 );
+				return sprintf( /* translators: %d is the minimum number of past orders. */ __( 'Use a returning customer (≥%d orders)', 'meyvora-convert' ), is_numeric( $value ) ? (int) $value : 1 );
 			case 'lifetime_spend_min':
-				return sprintf( __( 'Increase lifetime spend to at least %s', 'meyvora-convert' ), self::format_amount_display( is_numeric( $value ) ? $value : 0 ) );
+				return sprintf( /* translators: %s is the formatted minimum lifetime spend amount. */ __( 'Increase lifetime spend to at least %s', 'meyvora-convert' ), self::format_amount_display( is_numeric( $value ) ? $value : 0 ) );
 			case 'allowed_roles':
-				return is_array( $value ) && ! empty( $value ) ? sprintf( __( 'Log in as one of: %s', 'meyvora-convert' ), implode( ', ', $value ) ) : '';
+				return is_array( $value ) && ! empty( $value ) ? sprintf( /* translators: %s is a comma-separated list of allowed user roles. */ __( 'Log in as one of: %s', 'meyvora-convert' ), implode( ', ', $value ) ) : '';
 			case 'excluded_roles':
-				return is_array( $value ) && ! empty( $value ) ? sprintf( __( 'Use a role not in: %s', 'meyvora-convert' ), implode( ', ', $value ) ) : '';
+				return is_array( $value ) && ! empty( $value ) ? sprintf( /* translators: %s is a comma-separated list of excluded user roles. */ __( 'Use a role not in: %s', 'meyvora-convert' ), implode( ', ', $value ) ) : '';
 			case 'include_categories':
 				return is_array( $value ) && ! empty( $value ) ? __( 'Add only products from the selected categories', 'meyvora-convert' ) : '';
 			case 'exclude_categories':
@@ -468,7 +468,7 @@ class CRO_Offer_Engine {
 			return sprintf( /* translators: %s: formatted amount */ __( '%s off', 'meyvora-convert' ), wc_price( $amount ) );
 		}
 		if ( 'fixed' === $type ) {
-			return sprintf( __( '%s off', 'meyvora-convert' ), (string) $amount );
+			return sprintf( /* translators: %s is the discount amount. */ __( '%s off', 'meyvora-convert' ), (string) $amount );
 		}
 		return __( 'A discount', 'meyvora-convert' );
 	}

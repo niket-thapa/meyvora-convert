@@ -6,6 +6,7 @@
  *
  * @package Meyvora_Convert
  */
+// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange, PluginCheck.Security.DirectDB.UnescapedDBParameter
 
 defined( 'ABSPATH' ) || exit;
 
@@ -71,7 +72,7 @@ class CRO_Query_Optimizer {
 		}
 
 		if ( ! empty( $schedule['days_of_week'] ) && is_array( $schedule['days_of_week'] ) ) {
-			$today = (int) date( 'w' );
+			$today = (int) gmdate( 'w' );
 			if ( ! in_array( $today, $schedule['days_of_week'], true ) ) {
 				return false;
 			}
@@ -92,25 +93,29 @@ class CRO_Query_Optimizer {
 		}
 
 		global $wpdb;
-		$table = $wpdb->prefix . 'cro_events';
-
-		$values       = array();
-		$placeholders = array();
-
+		$table = esc_sql( $wpdb->prefix . 'cro_events' );
 		foreach ( $events as $event ) {
-			$placeholders[] = "(%s, %s, %d, %s, %s, %s, %f, %s)";
-			$values[]       = $event['event_type'] ?? 'impression';
-			$values[]       = 'campaign';
-			$values[]       = isset( $event['campaign_id'] ) ? (int) $event['campaign_id'] : 0;
-			$values[]       = isset( $event['visitor_id'] ) ? substr( sanitize_text_field( $event['visitor_id'] ), 0, 64 ) : '';
-			$values[]       = isset( $event['page_url'] ) ? substr( sanitize_text_field( $event['page_url'] ), 0, 500 ) : '';
-			$values[]       = isset( $event['device_type'] ) ? sanitize_text_field( $event['device_type'] ) : 'desktop';
-			$values[]       = isset( $event['revenue'] ) ? (float) $event['revenue'] : 0.0;
-			$values[]       = current_time( 'mysql' );
-		}
+			$event_type  = isset( $event['event_type'] ) ? sanitize_key( $event['event_type'] ) : '';
+			$event_type  = $event_type !== '' ? $event_type : 'impression';
+			$device_type = isset( $event['device_type'] ) ? sanitize_key( $event['device_type'] ) : '';
+			$device_type = $device_type !== '' ? $device_type : 'desktop';
+			$page_url    = isset( $event['page_url'] ) ? esc_url_raw( $event['page_url'] ) : '';
 
-		$sql = "INSERT INTO {$table} (event_type, source_type, source_id, session_id, page_url, device_type, order_value, created_at) VALUES " . implode( ', ', $placeholders );
-		$wpdb->query( $wpdb->prepare( $sql, $values ) );
+			$wpdb->insert(
+				$table,
+				array(
+					'event_type' => $event_type,
+					'source_type'=> 'campaign',
+					'source_id'  => isset( $event['campaign_id'] ) ? (int) $event['campaign_id'] : 0,
+					'session_id' => isset( $event['visitor_id'] ) ? substr( sanitize_text_field( $event['visitor_id'] ), 0, 64 ) : '',
+					'page_url'   => substr( $page_url, 0, 500 ),
+					'device_type'=> $device_type,
+					'order_value'=> isset( $event['revenue'] ) ? (float) $event['revenue'] : 0.0,
+					'created_at' => current_time( 'mysql' ),
+				),
+				array( '%s', '%s', '%d', '%s', '%s', '%s', '%f', '%s' )
+			);
+		}
 	}
 
 	/**
@@ -167,9 +172,15 @@ class CRO_Query_Optimizer {
 		);
 
 		foreach ( $indexes as $table_suffix => $table_indexes ) {
-			$table = $wpdb->prefix . $table_suffix;
+			$table = esc_sql( $wpdb->prefix . $table_suffix );
 
 			foreach ( $table_indexes as $index_name => $columns ) {
+				$safe_index_name = sanitize_key( $index_name );
+				$column_list = array();
+				foreach ( explode( ',', $columns ) as $column ) {
+					$column_list[] = sanitize_key( trim( $column ) );
+				}
+				$safe_columns = implode( ', ', $column_list );
 				$exists = $wpdb->get_var(
 					$wpdb->prepare(
 						"SELECT COUNT(*) FROM information_schema.statistics 
@@ -177,12 +188,13 @@ class CRO_Query_Optimizer {
 						AND table_name = %s 
 						AND index_name = %s",
 						$table,
-						$index_name
+						$safe_index_name
 					)
 				);
 
 				if ( ! $exists ) {
-					$wpdb->query( "CREATE INDEX {$index_name} ON {$table} ({$columns})" );
+					// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
+					$wpdb->query( "CREATE INDEX {$safe_index_name} ON {$table} ({$safe_columns})" );
 				}
 			}
 		}

@@ -4,6 +4,7 @@
  *
  * @package Meyvora_Convert
  */
+// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
 
 // If this file is called directly, abort.
 if ( ! defined( 'WPINC' ) ) {
@@ -424,7 +425,7 @@ class CRO_AB_Test {
 			$total_weight += (int) $variation->traffic_weight;
 		}
 		$total_weight = max( 1, $total_weight );
-		$random       = mt_rand( 1, $total_weight );
+		$random       = wp_rand( 1, $total_weight );
 		$cumulative   = 0;
 		foreach ( $test->variations as $variation ) {
 			$cumulative += (int) $variation->traffic_weight;

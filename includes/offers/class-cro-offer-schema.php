@@ -148,12 +148,12 @@ class CRO_Offer_Schema {
 			$err->add( 'headline', __( 'Offer name is required.', 'meyvora-convert' ) );
 		}
 		if ( mb_strlen( $name ) > self::NAME_MAX_LENGTH ) {
-			$err->add( 'headline', sprintf( __( 'Name must be at most %d characters.', 'meyvora-convert' ), self::NAME_MAX_LENGTH ) );
+			$err->add( 'headline', sprintf( /* translators: %d is the maximum number of allowed characters. */ __( 'Name must be at most %d characters.', 'meyvora-convert' ), self::NAME_MAX_LENGTH ) );
 		}
 
 		$priority = isset( $offer['priority'] ) ? (int) $offer['priority'] : 10;
 		if ( $priority < self::PRIORITY_MIN || $priority > self::PRIORITY_MAX ) {
-			$err->add( 'priority', sprintf( __( 'Priority must be between %d and %d.', 'meyvora-convert' ), self::PRIORITY_MIN, self::PRIORITY_MAX ) );
+			$err->add( 'priority', sprintf( /* translators: %1$d is the minimum value, %2$d is the maximum value. */ __( 'Priority must be between %1$d and %2$d.', 'meyvora-convert' ), self::PRIORITY_MIN, self::PRIORITY_MAX ) );
 		}
 
 		if ( array_key_exists( 'enabled', $offer ) && ! is_bool( $offer['enabled'] ) ) {
@@ -167,7 +167,7 @@ class CRO_Offer_Schema {
 
 		$reward_amount = isset( $offer['reward_amount'] ) ? (float) $offer['reward_amount'] : 10;
 		if ( $reward_type === 'percent' && ( $reward_amount < self::REWARD_PERCENT_MIN || $reward_amount > self::REWARD_PERCENT_MAX ) ) {
-			$err->add( 'reward_amount', sprintf( __( 'Percent discount must be between %d and %d.', 'meyvora-convert' ), self::REWARD_PERCENT_MIN, self::REWARD_PERCENT_MAX ) );
+			$err->add( 'reward_amount', sprintf( /* translators: %1$d is the minimum percentage, %2$d is the maximum percentage. */ __( 'Percent discount must be between %1$d and %2$d.', 'meyvora-convert' ), self::REWARD_PERCENT_MIN, self::REWARD_PERCENT_MAX ) );
 		}
 		if ( $reward_type === 'fixed' && $reward_amount < self::REWARD_FIXED_MIN ) {
 			$err->add( 'reward_amount', __( 'Fixed discount must be 0 or greater.', 'meyvora-convert' ) );
@@ -175,17 +175,17 @@ class CRO_Offer_Schema {
 
 		$ttl = isset( $offer['coupon_ttl_hours'] ) ? (int) $offer['coupon_ttl_hours'] : 48;
 		if ( $ttl < self::TTL_HOURS_MIN || $ttl > self::TTL_HOURS_MAX ) {
-			$err->add( 'coupon_ttl_hours', sprintf( __( 'Coupon TTL must be between %d and %d hours.', 'meyvora-convert' ), self::TTL_HOURS_MIN, self::TTL_HOURS_MAX ) );
+			$err->add( 'coupon_ttl_hours', sprintf( /* translators: %1$d is the minimum hours, %2$d is the maximum hours. */ __( 'Coupon TTL must be between %1$d and %2$d hours.', 'meyvora-convert' ), self::TTL_HOURS_MIN, self::TTL_HOURS_MAX ) );
 		}
 
 		$rate_limit = isset( $offer['rate_limit_hours'] ) ? (int) $offer['rate_limit_hours'] : 6;
 		if ( $rate_limit < self::RATE_LIMIT_HOURS_MIN || $rate_limit > self::RATE_LIMIT_HOURS_MAX ) {
-			$err->add( 'rate_limit_hours', sprintf( __( 'Rate limit must be between %d and %d hours.', 'meyvora-convert' ), self::RATE_LIMIT_HOURS_MIN, self::RATE_LIMIT_HOURS_MAX ) );
+			$err->add( 'rate_limit_hours', sprintf( /* translators: %1$d is the minimum hours, %2$d is the maximum hours. */ __( 'Rate limit must be between %1$d and %2$d hours.', 'meyvora-convert' ), self::RATE_LIMIT_HOURS_MIN, self::RATE_LIMIT_HOURS_MAX ) );
 		}
 
 		$max_pv = isset( $offer['max_coupons_per_visitor'] ) ? (int) $offer['max_coupons_per_visitor'] : 1;
 		if ( $max_pv < self::MAX_PER_VISITOR_MIN || $max_pv > self::MAX_PER_VISITOR_MAX ) {
-			$err->add( 'max_coupons_per_visitor', sprintf( __( 'Max per visitor must be between %d and %d.', 'meyvora-convert' ), self::MAX_PER_VISITOR_MIN, self::MAX_PER_VISITOR_MAX ) );
+			$err->add( 'max_coupons_per_visitor', sprintf( /* translators: %1$d is the minimum value, %2$d is the maximum value. */ __( 'Max per visitor must be between %1$d and %2$d.', 'meyvora-convert' ), self::MAX_PER_VISITOR_MIN, self::MAX_PER_VISITOR_MAX ) );
 		}
 
 		if ( $err->has_errors() ) {

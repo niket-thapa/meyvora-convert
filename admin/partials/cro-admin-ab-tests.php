@@ -1,4 +1,6 @@
 <?php
+if ( ! defined( 'ABSPATH' ) ) exit;
+// phpcs:disable WordPress.Security.NonceVerification.Recommended
 $ab_model = new CRO_AB_Test();
 $tests = $ab_model->get_all();
 $tests = is_array( $tests ) ? $tests : array();
@@ -28,7 +30,7 @@ if ( $ab_error === 'invalid_nonce' ) {
     <div class="cro-empty-state">
         <h2><?php esc_html_e('No A/B Tests Yet', 'meyvora-convert'); ?></h2>
         <p><?php esc_html_e('Test different versions of your campaigns to find what converts best.', 'meyvora-convert'); ?></p>
-        <a href="<?php echo admin_url('admin.php?page=cro-ab-test-new'); ?>" class="button button-primary">
+        <a href="<?php echo esc_url( admin_url( 'admin.php?page=cro-ab-test-new' ) ); ?>" class="button button-primary">
             <?php esc_html_e('Create Your First Test', 'meyvora-convert'); ?>
         </a>
     </div>
@@ -87,7 +89,8 @@ if ( $ab_error === 'invalid_nonce' ) {
                     <?php if ( ! $enough_data && ( $test->status === 'running' || $test->status === 'paused' ) ) : ?>
                         <span class="cro-result-insufficient"><?php esc_html_e( 'Not enough data', 'meyvora-convert' ); ?></span>
                     <?php elseif ( $stats && ! empty( $stats['has_winner'] ) && ! empty( $stats['winner']['variation_name'] ) ) : ?>
-                        <span class="cro-winner"><?php echo CRO_Icons::svg( 'trophy', array( 'class' => 'cro-ico' ) ); ?> <?php echo esc_html( $stats['winner']['variation_name'] ); ?></span>
+                        <span class="cro-winner"><?php echo wp_kses_post( CRO_Icons::svg( 'trophy', array( 'class' => 'cro-ico' ) ) ); ?> <?php echo esc_html( $stats['winner']['variation_name'] ); ?></span>
+
                     <?php else : ?>
                         <?php echo esc_html( $result_label ); ?>
                     <?php endif; ?>

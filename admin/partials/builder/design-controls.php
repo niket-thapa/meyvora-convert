@@ -1,4 +1,5 @@
 <?php
+if ( ! defined( 'ABSPATH' ) ) exit;
 /**
  * Design controls partial for the campaign builder.
  * Expects $campaign_data (object with optional styling array).
@@ -135,13 +136,17 @@ $styling = ( is_object( $campaign_data ) && isset( $campaign_data->styling ) && 
 		<label><?php esc_html_e( 'Position', 'meyvora-convert' ); ?></label>
 		<div class="cro-position-grid">
 			<button type="button" data-position="top-left" class="cro-position-btn<?php echo $position === 'top-left' ? ' active' : ''; ?>">↖</button>
-			<button type="button" data-position="top-center" class="cro-position-btn<?php echo $position === 'top-center' ? ' active' : ''; ?>"><?php echo CRO_Icons::svg( 'chevron-up', array( 'class' => 'cro-ico' ) ); ?></button>
+			<button type="button" data-position="top-center" class="cro-position-btn<?php echo $position === 'top-center' ? ' active' : ''; ?>"><?php echo wp_kses_post( CRO_Icons::svg( 'chevron-up', array( 'class' => 'cro-ico' ) ) ); ?></button>
+
 			<button type="button" data-position="top-right" class="cro-position-btn<?php echo $position === 'top-right' ? ' active' : ''; ?>">↗</button>
-			<button type="button" data-position="center-left" class="cro-position-btn<?php echo $position === 'center-left' ? ' active' : ''; ?>"><?php echo CRO_Icons::svg( 'chevron-left', array( 'class' => 'cro-ico' ) ); ?></button>
+			<button type="button" data-position="center-left" class="cro-position-btn<?php echo $position === 'center-left' ? ' active' : ''; ?>"><?php echo wp_kses_post( CRO_Icons::svg( 'chevron-left', array( 'class' => 'cro-ico' ) ) ); ?></button>
+
 			<button type="button" data-position="center" class="cro-position-btn<?php echo $position === 'center' ? ' active' : ''; ?>">•</button>
-			<button type="button" data-position="center-right" class="cro-position-btn<?php echo $position === 'center-right' ? ' active' : ''; ?>"><?php echo CRO_Icons::svg( 'chevron-right', array( 'class' => 'cro-ico' ) ); ?></button>
+			<button type="button" data-position="center-right" class="cro-position-btn<?php echo $position === 'center-right' ? ' active' : ''; ?>"><?php echo wp_kses_post( CRO_Icons::svg( 'chevron-right', array( 'class' => 'cro-ico' ) ) ); ?></button>
+
 			<button type="button" data-position="bottom-left" class="cro-position-btn<?php echo $position === 'bottom-left' ? ' active' : ''; ?>">↙</button>
-			<button type="button" data-position="bottom-center" class="cro-position-btn<?php echo $position === 'bottom-center' ? ' active' : ''; ?>"><?php echo CRO_Icons::svg( 'chevron-down', array( 'class' => 'cro-ico' ) ); ?></button>
+			<button type="button" data-position="bottom-center" class="cro-position-btn<?php echo $position === 'bottom-center' ? ' active' : ''; ?>"><?php echo wp_kses_post( CRO_Icons::svg( 'chevron-down', array( 'class' => 'cro-ico' ) ) ); ?></button>
+
 			<button type="button" data-position="bottom-right" class="cro-position-btn<?php echo $position === 'bottom-right' ? ' active' : ''; ?>">↘</button>
 		</div>
 		<input type="hidden" id="design-position" value="<?php echo esc_attr( $position ); ?>" />

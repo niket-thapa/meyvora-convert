@@ -101,7 +101,7 @@ class CRO_Cart_Optimizer {
 		if ( empty( $parts ) ) {
 			return;
 		}
-		echo '<div class="cro-blocks-cart-prefix cro-cart-optimizer-block">' . implode( "\n", $parts ) . '</div>';
+		echo '<div class="cro-blocks-cart-prefix cro-cart-optimizer-block">' . wp_kses_post( implode( "\n", $parts ) ) . '</div>';
 	}
 
 	/**
@@ -175,7 +175,7 @@ class CRO_Cart_Optimizer {
 			)
 		);
 
-		wp_register_style( 'cro-cart-exit-nudge', false, array() );
+		wp_register_style( 'cro-cart-exit-nudge', false, array(), CRO_VERSION );
 		wp_enqueue_style( 'cro-cart-exit-nudge' );
 		$css = '.cro-exit-nudge{position:fixed;inset:0;z-index:999999;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.4);opacity:0;visibility:hidden;transition:opacity .25s ease,visibility .25s ease}.cro-exit-nudge--visible{opacity:1;visibility:visible}.cro-exit-nudge__box{position:relative;max-width:360px;margin:1rem;padding:1.5rem;background:#fff;border-radius:8px;box-shadow:0 4px 24px rgba(0,0,0,.15);text-align:center}.cro-exit-nudge__message{margin:0 0 1rem;font-size:1.1rem;line-height:1.4;color:#333}.cro-exit-nudge__cta{display:inline-block;margin-bottom:.5rem;padding:.6rem 1.2rem;font-size:1rem;text-decoration:none;color:#fff;background:#333;border-radius:4px;border:none;cursor:pointer}.cro-exit-nudge__cta:hover{color:#fff;background:#555}.cro-exit-nudge__close{position:absolute;top:.5rem;right:.5rem;width:32px;height:32px;padding:0;font-size:1.5rem;line-height:1;color:#666;background:none;border:none;cursor:pointer}.cro-exit-nudge__close:hover{color:#333}';
 		wp_add_inline_style( 'cro-cart-exit-nudge', $css );

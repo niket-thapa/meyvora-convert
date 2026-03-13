@@ -73,7 +73,8 @@ class CRO_Validator {
 				$color_fields = array( 'bg_color', 'text_color', 'headline_color', 'button_bg_color', 'button_text_color' );
 				foreach ( $color_fields as $field ) {
 					if ( ! empty( $styling[ $field ] ) && ! self::is_valid_color( $styling[ $field ] ) ) {
-						self::$errors[ $field ] = sprintf( __( 'Invalid color format for %s', 'meyvora-convert' ), $field );
+						/* translators: %s is the name of the color setting field. */
+				self::$errors[ $field ] = sprintf( __( 'Invalid color format for %s', 'meyvora-convert' ), $field );
 					}
 				}
 

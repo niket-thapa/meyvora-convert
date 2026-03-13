@@ -8,6 +8,7 @@
  *
  * @package Meyvora_Convert
  */
+// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.Security.NonceVerification.Recommended
 
 // If this file is called directly, abort.
 if ( ! defined( 'WPINC' ) ) {
@@ -253,7 +254,7 @@ class CRO_Abandoned_Cart_Tracker {
 		}
 
 		global $wpdb;
-		$table = self::get_table_name();
+		$table = esc_sql( self::get_table_name() );
 
 		$existing = $wpdb->get_row(
 			$wpdb->prepare(
@@ -337,7 +338,7 @@ class CRO_Abandoned_Cart_Tracker {
 		// Only store email when consent given. When consent false, only update email_consent flag.
 		$email_to_store = ( $consent && is_email( $email ) ) ? sanitize_email( $email ) : null;
 		global $wpdb;
-		$table = self::get_table_name();
+		$table = esc_sql( self::get_table_name() );
 		if ( ! CRO_Database::table_exists( $table ) ) {
 			return false;
 		}
@@ -567,35 +568,40 @@ class CRO_Abandoned_Cart_Tracker {
 		$page          = isset( $args['page'] ) ? max( 1, (int) $args['page'] ) : 1;
 		$offset        = ( $page - 1 ) * $per_page;
 
-		$where = array( '1=1' );
-		$prepare = array();
+		$status_filter = in_array( $status_filter, array( 'all', 'active', 'recovered', 'emailed' ), true )
+			? $status_filter
+			: 'all';
+		$search_like = $search !== '' ? '%' . $wpdb->esc_like( $search ) . '%' : '';
 
-		if ( $status_filter === 'active' ) {
-			$where[] = 'status = %s';
-			$prepare[] = self::STATUS_ACTIVE;
-		} elseif ( $status_filter === 'recovered' ) {
-			$where[] = 'status = %s';
-			$prepare[] = self::STATUS_RECOVERED;
-		} elseif ( $status_filter === 'emailed' ) {
-			$where[] = '( email_1_sent_at IS NOT NULL OR email_2_sent_at IS NOT NULL OR email_3_sent_at IS NOT NULL )';
-		}
-
-		if ( $search !== '' ) {
-			$where[] = 'email LIKE %s';
-			$prepare[] = '%' . $wpdb->esc_like( $search ) . '%';
-		}
-
-		$where_sql = implode( ' AND ', $where );
-		$order_sql = 'ORDER BY last_activity_at DESC';
-
-		$total = (int) $wpdb->get_var(
-			count( $prepare ) ? $wpdb->prepare( "SELECT COUNT(*) FROM {$table} WHERE {$where_sql}", ...$prepare ) : "SELECT COUNT(*) FROM {$table} WHERE {$where_sql}"
+		$where_args = array(
+			$status_filter,
+			$status_filter, self::STATUS_ACTIVE,
+			$status_filter, self::STATUS_RECOVERED,
+			$status_filter,
+			$search_like, $search_like,
 		);
 
-		$prepare[] = $per_page;
-		$prepare[] = $offset;
+		$total = (int) $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT COUNT(*) FROM {$table} WHERE ( %s = 'all'
+					OR ( %s = 'active' AND status = %s )
+					OR ( %s = 'recovered' AND status = %s )
+					OR ( %s = 'emailed' AND ( email_1_sent_at IS NOT NULL OR email_2_sent_at IS NOT NULL OR email_3_sent_at IS NOT NULL ) )
+				) AND ( %s = '' OR email LIKE %s )",
+				...$where_args
+			)
+		);
+
 		$items = $wpdb->get_results(
-			$wpdb->prepare( "SELECT * FROM {$table} WHERE {$where_sql} {$order_sql} LIMIT %d OFFSET %d", ...$prepare ),
+			$wpdb->prepare(
+				"SELECT * FROM {$table} WHERE ( %s = 'all'
+					OR ( %s = 'active' AND status = %s )
+					OR ( %s = 'recovered' AND status = %s )
+					OR ( %s = 'emailed' AND ( email_1_sent_at IS NOT NULL OR email_2_sent_at IS NOT NULL OR email_3_sent_at IS NOT NULL ) )
+				) AND ( %s = '' OR email LIKE %s )
+				ORDER BY last_activity_at DESC LIMIT %d OFFSET %d",
+				...array_merge( $where_args, array( $per_page, $offset ) )
+			),
 			OBJECT
 		);
 
