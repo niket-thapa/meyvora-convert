@@ -46,28 +46,38 @@ class CRO_Campaign {
 		if ( $args['limit'] > 0 ) {
 			$query_args[] = (int) $args['limit'];
 			$query_args[] = (int) $args['offset'];
-				return $wpdb->get_results(
-					$wpdb->prepare(
-						// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
-						"SELECT * FROM {$table_name}
-						WHERE ( %s = '' OR status = %s )
-						AND ( %s = '' OR campaign_type = %s )
-						ORDER BY created_at DESC
-						LIMIT %d OFFSET %d",
-					...$query_args
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table, no high-level API.
+			return $wpdb->get_results(
+				$wpdb->prepare(
+					// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+					"SELECT * FROM {$table_name}
+					WHERE ( %s = '' OR status = %s )
+					AND ( %s = '' OR campaign_type = %s )
+					ORDER BY created_at DESC
+					LIMIT %d OFFSET %d",
+					$query_args[0],
+					$query_args[1],
+					$query_args[2],
+					$query_args[3],
+					$query_args[4],
+					$query_args[5]
 				),
 				ARRAY_A
 			);
 		}
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table, no high-level API.
 		return $wpdb->get_results(
 			$wpdb->prepare(
-				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 				"SELECT * FROM {$table_name}
 				WHERE ( %s = '' OR status = %s )
 				AND ( %s = '' OR campaign_type = %s )
 				ORDER BY created_at DESC",
-				...$query_args
+				$query_args[0],
+				$query_args[1],
+				$query_args[2],
+				$query_args[3]
 			),
 			ARRAY_A
 		);
@@ -84,6 +94,7 @@ class CRO_Campaign {
 
 		$table_name = esc_sql( $wpdb->prefix . 'cro_campaigns' );
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table, no high-level API.
 		$campaign = $wpdb->get_row(
 			$wpdb->prepare(
 				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
@@ -146,6 +157,7 @@ class CRO_Campaign {
 			'display_rules'   => maybe_serialize( $data['display_rules'] ?? array() ),
 		);
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Custom table insert.
 		$result = $wpdb->insert( $table_name, $insert_data );
 
 		if ( $result ) {
@@ -220,6 +232,7 @@ class CRO_Campaign {
 
 		$format = array_fill( 0, count( $update_data ), '%s' );
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table update.
 		$result = $wpdb->update(
 			$table_name,
 			$update_data,
@@ -242,6 +255,7 @@ class CRO_Campaign {
 
 		$table_name = $wpdb->prefix . 'cro_campaigns';
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table delete.
 		$result = $wpdb->delete(
 			$table_name,
 			array( 'id' => $id ),
@@ -284,6 +298,7 @@ class CRO_Campaign {
 			'revenue_attributed' => 0,
 		);
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Custom table insert for duplicate.
 		$result = $wpdb->insert( $table_name, $new_data );
 
 		if ( false === $result ) {

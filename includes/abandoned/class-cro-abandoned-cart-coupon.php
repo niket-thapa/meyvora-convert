@@ -43,6 +43,7 @@ class CRO_Abandoned_Cart_Coupon {
 		if ( $code ) {
 			global $wpdb;
 			$table = CRO_Abandoned_Cart_Tracker::get_table_name();
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom abandoned-cart table update.
 			$wpdb->update(
 				$table,
 				array( 'discount_coupon' => $code, 'updated_at' => current_time( 'mysql' ) ),

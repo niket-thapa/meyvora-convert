@@ -1977,8 +1977,10 @@ class CRO_Admin {
 		}
 
 		if ( defined( 'WP_DEBUG_LOG' ) && WP_DEBUG_LOG ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Intentional debug logging when WP_DEBUG_LOG is enabled.
 			error_log( '[Meyvora Convert] JS Error: ' . ( isset( $data['message'] ) ? $data['message'] : '' ) );
 			if ( ! empty( $data['url'] ) ) {
+				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Intentional debug logging when WP_DEBUG_LOG is enabled.
 				error_log( '[Meyvora Convert] URL: ' . $data['url'] );
 			}
 		}

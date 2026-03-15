@@ -139,6 +139,7 @@ class CRO_Database {
 
 		$data = self::sanitize_data( $data );
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Wrapper for custom table insert.
 		$result = $wpdb->insert( $table, $data, $format );
 
 		if ( $result === false ) {
@@ -173,6 +174,7 @@ class CRO_Database {
 
 		$data = self::sanitize_data( $data );
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Wrapper for custom table update.
 		$result = $wpdb->update( $table, $data, $where, $format, $where_format );
 
 		if ( $result === false ) {
@@ -200,6 +202,7 @@ class CRO_Database {
 			return false;
 		}
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Wrapper for custom table delete.
 		$result = $wpdb->delete( $table, $where, $where_format );
 
 		if ( $result === false ) {
@@ -221,6 +224,7 @@ class CRO_Database {
 	public static function table_exists( $table ) {
 		global $wpdb;
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- No API for SHOW TABLES.
 		$result = $wpdb->get_var( $wpdb->prepare(
 			'SHOW TABLES LIKE %s',
 			$table
@@ -675,6 +679,7 @@ class CRO_Database {
 	 */
 	public static function begin_transaction() {
 		global $wpdb;
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Transaction control, no alternative API.
 		$wpdb->query( 'START TRANSACTION' );
 	}
 
@@ -683,6 +688,7 @@ class CRO_Database {
 	 */
 	public static function commit() {
 		global $wpdb;
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Transaction control, no alternative API.
 		$wpdb->query( 'COMMIT' );
 	}
 
@@ -691,6 +697,7 @@ class CRO_Database {
 	 */
 	public static function rollback() {
 		global $wpdb;
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Transaction control, no alternative API.
 		$wpdb->query( 'ROLLBACK' );
 	}
 }

@@ -89,6 +89,7 @@ rm -f "$STAGING_DIR/assets/README.md"
 echo "--- Removing Mac junk from staging ---"
 find "$STAGING_DIR" -type d -name '__MACOSX' -exec rm -rf {} + 2>/dev/null || true
 find "$STAGING_DIR" -type f -name '._*' -delete 2>/dev/null || true
+find "$STAGING_DIR" -type f -name '.DS_Store' -delete 2>/dev/null || true
 # Remove any __MACOSX that might have been left (find -exec rm can leave empty parents)
 find "$STAGING_DIR" -type d -name '__MACOSX' 2>/dev/null | while read -r d; do rm -rf "$d"; done
 echo "Done."
@@ -116,6 +117,11 @@ if echo "$ZIP_LIST" | grep -q '__MACOSX'; then
   echo "  [FAIL] __MACOSX is present in zip"
 else
   echo "  [OK] __MACOSX not present"
+fi
+if echo "$ZIP_LIST" | grep -q '\.DS_Store'; then
+  echo "  [FAIL] .DS_Store is present in zip"
+else
+  echo "  [OK] .DS_Store not present"
 fi
 if echo "$ZIP_LIST" | grep -q 'dist/'; then
   echo "  [FAIL] dist/ is present in zip"
