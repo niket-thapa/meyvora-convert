@@ -350,7 +350,7 @@ class MEYVC_Edge_Cases {
 				break;
 
 			case 'clear_cache':
-				if ( ! current_user_can( 'manage_options' ) ) {
+				if ( ! current_user_can( 'manage_meyvora_convert' ) ) {
 					wp_send_json_error( array( 'message' => __( 'Unauthorized', 'meyvora-convert' ) ), 403 );
 				}
 				if ( function_exists( 'wp_cache_flush' ) ) {

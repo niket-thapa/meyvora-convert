@@ -452,13 +452,13 @@ class MEYVC_Public {
 			)
 		);
 
-		$can_decide_debug = current_user_can( 'manage_options' ) || current_user_can( 'manage_meyvora_convert' );
+		$can_decide_debug = current_user_can( 'manage_meyvora_convert' );
 		wp_localize_script(
 			'meyvc-public',
 			'meyvcPublic',
 			array(
 				'debugMode'   => meyvc_settings()->get( 'general', 'debug_mode', false ),
-				'isAdmin'     => current_user_can( 'manage_options' ),
+				'isAdmin'     => current_user_can( 'manage_meyvora_convert' ),
 				'decideDebug' => $can_decide_debug && meyvc_settings()->get( 'general', 'debug_mode', false ),
 			)
 		);
@@ -570,13 +570,13 @@ class MEYVC_Public {
 		}
 
 		// meyvcConfig is printed once in MEYVC_Frontend::enqueue_frontend_config_script() (inline before meyvc-public) to avoid overwriting REST nonce vs error-log nonce.
-		$can_decide_debug = current_user_can( 'manage_options' ) || current_user_can( 'manage_meyvora_convert' );
+		$can_decide_debug = current_user_can( 'manage_meyvora_convert' );
 		wp_localize_script(
 			'meyvc-public',
 			'meyvcPublic',
 			array(
 				'debugMode'   => meyvc_settings()->get( 'general', 'debug_mode', false ),
-				'isAdmin'     => current_user_can( 'manage_options' ),
+				'isAdmin'     => current_user_can( 'manage_meyvora_convert' ),
 				'decideDebug' => $can_decide_debug && meyvc_settings()->get( 'general', 'debug_mode', false ),
 			)
 		);

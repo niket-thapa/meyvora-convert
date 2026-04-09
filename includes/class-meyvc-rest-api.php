@@ -234,7 +234,7 @@ class MEYVC_REST_API {
 	 * @return bool
 	 */
 	public function permissions_check() {
-		return current_user_can( 'manage_options' );
+		return current_user_can( 'manage_meyvora_convert' );
 	}
 
 	/**
@@ -536,7 +536,7 @@ class MEYVC_REST_API {
 	 * @return bool
 	 */
 	private static function rest_can_return_decide_debug( $request, array $body ) {
-		if ( current_user_can( 'manage_options' ) || current_user_can( 'manage_meyvora_convert' ) ) {
+		if ( current_user_can( 'manage_meyvora_convert' ) ) {
 			return true;
 		}
 		if ( defined( 'MEYVC_DECIDE_DEBUG_SECRET' ) && is_string( MEYVC_DECIDE_DEBUG_SECRET ) && MEYVC_DECIDE_DEBUG_SECRET !== ''
@@ -650,7 +650,7 @@ class MEYVC_REST_API {
 		} elseif ( $wants_debug && ! $include_decide_debug ) {
 			$payload['debug_request_rejected'] = array(
 				'reason'  => 'not_authenticated',
-				'message' => __( 'Debug is not included: this REST request is not authenticated as a WordPress admin. Send the wordpress_logged_in cookie and X-WP-Nonce (from wp-api), or add define( \'MEYVC_DECIDE_DEBUG_SECRET\', \'your-secret\' ); to wp-config.php and pass the same value as "decide_debug_secret" in the JSON body. Note: context.user.is_admin in the JSON body does not authenticate the request.', 'meyvora-convert' ),
+				'message' => __( 'Debug is not included: this REST request is not authenticated as a user with the Meyvora Convert capability. Send the wordpress_logged_in cookie and X-WP-Nonce (from wp-api), or add define( \'MEYVC_DECIDE_DEBUG_SECRET\', \'your-secret\' ); to wp-config.php and pass the same value as "decide_debug_secret" in the JSON body. Note: context.user.is_admin in the JSON body does not authenticate the request.', 'meyvora-convert' ),
 			);
 		}
 
@@ -826,6 +826,10 @@ class MEYVC_REST_API {
 			return new WP_Error( 'invalid_email', __( 'Invalid email address.', 'meyvora-convert' ), array( 'status' => 400 ) );
 		}
 
+		$page_url = isset( $body['page_url'] ) ? esc_url_raw( (string) $body['page_url'] ) : '';
+		$coupon_raw = isset( $body['coupon_code'] ) ? sanitize_text_field( (string) $body['coupon_code'] ) : '';
+		$coupon_offered = $coupon_raw !== '' ? $coupon_raw : null;
+
 		// Save email
 		global $wpdb;
 		$emails_table = $wpdb->prefix . 'meyvc_emails';
@@ -835,8 +839,8 @@ class MEYVC_REST_API {
 				'email' => $email,
 				'source_type' => 'campaign',
 				'source_id' => $campaign_id,
-				'page_url' => $body['page_url'] ?? '',
-				'coupon_offered' => $body['coupon_code'] ?? null,
+				'page_url' => $page_url,
+				'coupon_offered' => $coupon_offered,
 			),
 			array( '%s', '%s', '%d', '%s', '%s' )
 		);

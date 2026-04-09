@@ -123,26 +123,25 @@ register_activation_hook( __FILE__, 'meyvc_handle_activation' );
 
 function meyvc_handle_activation( $network_wide ) {
 	if ( $network_wide && is_multisite() ) {
-		// Deactivate self to prevent partial state, then show a clear error.
-		deactivate_plugins( MEYVC_PLUGIN_BASENAME );
-		wp_die(
-			esc_html__( 'Meyvora Convert does not support network-wide activation. Please activate it individually on each site from that site\'s Plugins page.', 'meyvora-convert' ),
-			esc_html__( 'Network Activation Not Supported', 'meyvora-convert' ),
-			array( 'back_link' => true )
-		);
+		$sites = get_sites( array( 'fields' => 'ids', 'number' => 0 ) );
+		foreach ( $sites as $blog_id ) {
+			switch_to_blog( $blog_id );
+			MEYVC_Activator::activate();
+			restore_current_blog();
+		}
+		return;
 	}
 	MEYVC_Activator::activate();
 }
 
-// Multisite: create tables for new sites when plugin is per-site active.
+// Multisite: create tables for new sites when plugin is network- or site-active.
 add_action( 'wp_initialize_site', function( $new_site ) {
-	if ( ! is_plugin_active_for_network( MEYVC_PLUGIN_BASENAME ) && is_plugin_active( MEYVC_PLUGIN_BASENAME ) ) {
-		switch_to_blog( $new_site->blog_id );
-		if ( class_exists( 'MEYVC_Database' ) ) {
-			MEYVC_Database::create_tables();
-		}
-		restore_current_blog();
+	switch_to_blog( $new_site->blog_id );
+	$plugin_active = is_plugin_active_for_network( MEYVC_PLUGIN_BASENAME ) || is_plugin_active( MEYVC_PLUGIN_BASENAME );
+	if ( $plugin_active && class_exists( 'MEYVC_Database' ) ) {
+		MEYVC_Database::create_tables();
 	}
+	restore_current_blog();
 } );
 
 register_deactivation_hook( __FILE__, 'meyvc_deactivate_plugin' );

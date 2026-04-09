@@ -193,7 +193,7 @@ class MEYVC_Ajax {
 	public function save_campaign() {
 		check_ajax_referer( 'meyvc_admin_nonce', 'nonce' );
 
-		if ( ! current_user_can( 'manage_options' ) && ! current_user_can( 'manage_meyvora_convert' ) ) {
+		if ( ! current_user_can( 'manage_meyvora_convert' ) ) {
 			wp_send_json_error( array( 'message' => __( 'Unauthorized', 'meyvora-convert' ) ) );
 		}
 

@@ -178,7 +178,7 @@ class MEYVC_Context {
 			$id = (int) $user->ID;
 			$roles = (array) $user->roles;
 			$role = ! empty( $roles[0] ) ? $roles[0] : '';
-			$is_admin = user_can( $user, 'manage_options' );
+			$is_admin = user_can( $user, 'manage_meyvora_convert' );
 		}
 		return array(
 			'logged_in'   => $logged_in,

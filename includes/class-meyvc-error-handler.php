@@ -212,7 +212,7 @@ class MEYVC_Error_Handler {
 		if ( ! self::is_emergency_disabled() ) {
 			return;
 		}
-		if ( ! current_user_can( 'manage_options' ) ) {
+		if ( ! current_user_can( 'manage_meyvora_convert' ) ) {
 			return;
 		}
 		$clear_url = wp_nonce_url(
@@ -240,7 +240,7 @@ class MEYVC_Error_Handler {
 		if ( ! check_admin_referer( 'meyvc_clear_emergency' ) ) {
 			return;
 		}
-		if ( ! current_user_can( 'manage_options' ) ) {
+		if ( ! current_user_can( 'manage_meyvora_convert' ) ) {
 			return;
 		}
 		self::clear_emergency();

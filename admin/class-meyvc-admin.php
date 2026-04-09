@@ -3070,8 +3070,10 @@ class MEYVC_Admin {
 		}
 
 		if ( defined( 'WP_DEBUG_LOG' ) && WP_DEBUG_LOG && class_exists( 'MEYVC_Error_Handler' ) ) {
-			$message = isset( $data['message'] ) ? substr( (string) $data['message'], 0, 500 ) : '';
-			$url     = isset( $data['url'] ) ? substr( (string) $data['url'], 0, 300 ) : '';
+			$message = isset( $data['message'] ) ? sanitize_text_field( (string) $data['message'] ) : '';
+			$message = $message !== '' ? substr( $message, 0, 500 ) : '';
+			$url     = isset( $data['url'] ) ? esc_url_raw( (string) $data['url'] ) : '';
+			$url     = $url !== '' ? substr( $url, 0, 300 ) : '';
 			if ( $message ) {
 				MEYVC_Error_Handler::log( 'DEBUG', '[Meyvora Convert] JS Error: ' . $message );
 			}
